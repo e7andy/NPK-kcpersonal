@@ -1,0 +1,47 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { eq } from "drizzle-orm";
+import { Flash } from "@/components/flash";
+import { db } from "@/db";
+import { user } from "@/db/schema";
+import { requireRole } from "@/lib/session";
+import { updateUser } from "../../actions";
+import { UserFields } from "../user-fields";
+
+export default async function EditUserPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ error?: string }>;
+}) {
+  await requireRole("admin");
+  const { id } = await params;
+  const sp = await searchParams;
+  const [row] = await db.select().from(user).where(eq(user.id, id));
+  if (!row) notFound();
+
+  return (
+    <div className="mx-auto grid max-w-2xl gap-5">
+      <Link href="/admin/users" className="text-sm">Tillbaka till personal</Link>
+      <h1>{row.name}</h1>
+      <Flash error={sp.error} />
+      <form action={updateUser} className="panel grid gap-4 p-5 sm:grid-cols-2">
+        <input type="hidden" name="id" value={row.id} />
+        <UserFields user={row} />
+        <label className="flex items-center gap-2 sm:col-span-2">
+          <input type="checkbox" name="active" defaultChecked={row.active} />
+          <span>
+            <span className="font-bold">Aktiv</span>
+            <span className="block text-sm text-ink-soft">
+              Inaktiva kan inte logga in och visas inte i schemat. Tidigare pass finns kvar.
+            </span>
+          </span>
+        </label>
+        <div>
+          <button type="submit" className="btn">Spara ändringar</button>
+        </div>
+      </form>
+    </div>
+  );
+}

@@ -2,6 +2,8 @@
 
 Etapp 1–5 utgör en första version att köra en säsong med.
 
+**Status 2026-10-28:** en prototyp som täcker etapp 1–5 är byggd. Den behöver provas av planerare och lönekörare innan säsongen, och de öppna frågorna i [beslut.md](beslut.md) behöver besvaras.
+
 ## Etapp 1: Grund
 - Next.js-projekt, PostgreSQL, Docker Compose.
 - Databasschema och migreringar.

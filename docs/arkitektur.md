@@ -4,61 +4,91 @@
 
 | Del | Val |
 |---|---|
-| Ramverk | Next.js (App Router), TypeScript |
-| Databas | PostgreSQL |
-| Databasåtkomst | Drizzle ORM eller Prisma, med migreringar i repot |
-| Inloggning | Better Auth, plugin för magic link |
-| UI | Server-renderade sidor och server actions. Enkel komponentbas, t.ex. Tailwind |
-| Mobil | PWA (manifest och ikon) så att sidan kan läggas på hemskärmen |
-| Export | CSV direkt, Excel via t.ex. `exceljs` |
+| Ramverk | Next.js 16 (App Router), TypeScript |
+| Databas | PostgreSQL 16 |
+| Databasåtkomst | Drizzle ORM, SQL-migreringar i `drizzle/` |
+| Inloggning | Better Auth med plugin för magic link |
+| UI | Server-renderade sidor och server actions, Tailwind CSS 4 |
+| Typsnitt | Atkinson Hyperlegible (text) och Bricolage Grotesque (rubriker, tider), självhostade via Fontsource |
+| Mobil | PWA-manifest och ikon så att sidan kan läggas på hemskärmen |
+| Export | CSV (semikolon, decimalkomma) och Excel via `exceljs` |
+| Tester | Vitest för beräkningsregler, datum och export |
 | Drift | Docker Compose på egen VPS bakom befintlig reverse proxy |
+
+All kod, alla identifierare och kommentarer är på engelska. Gränssnittet och dokumentationen är på svenska.
 
 ## Inloggning
 
-- Inloggningslänk via e-post (magic link), skickad via egen mailserver (SMTP).
-- Ingen självregistrering. Admin skapar konton och endast kända, aktiva e-postadresser får en länk.
-- Lång session för sommarjobbare (i storleksordningen en säsong) så att de sällan behöver logga in.
-- Kortare session för planerare, lön och admin.
-- Ingen tvåfaktorsinloggning i första versionen, eftersom inga känsliga personuppgifter lagras. Better Auth har ett TOTP-plugin om det behövs senare.
+- Inloggningslänk via e-post, skickad via SMTP. Länken gäller i 15 minuter och kan bara användas en gång. Token lagras hashad.
+- Ingen självregistrering. Bara kända, aktiva e-postadresser får en länk. Svaret i webbläsaren är detsamma oavsett om adressen finns, så adresser kan inte provas fram.
+- Sessionen gäller i 120 dagar för sommarjobbare.
+- För planerare, lön och admin krävs ny inloggning efter 14 dagar (`src/lib/session.ts`).
+- Ändrad e-post, ändrade roller eller inaktivering loggar ut personen överallt.
+- Utan `SMTP_HOST` i utvecklingsläge skrivs länken till serverloggen. I produktion krävs SMTP.
+- Ingen tvåfaktorsinloggning, eftersom inga känsliga personuppgifter lagras. Better Auth har ett TOTP-plugin om det behövs senare.
 
 ## Behörighet
 
-Kontrolleras på serversidan i varje server action och route, inte bara genom att dölja knappar.
+Kontrolleras på serversidan i varje sida, server action och route med `requireRole()`, inte bara genom att dölja länkar.
 
 | Funktion | Sommarjobbare | Planerare | Lön | Admin |
 |---|---|---|---|---|
-| Se egna pass | ✓ | ✓ | ✓ | ✓ |
+| Se egna pass | ✓ | | | |
 | Se vem som jobbar en dag | ✓ | ✓ | ✓ | ✓ |
 | Skapa och ändra pass | | ✓ | | |
 | Godkänna månad | | ✓ | | |
 | Se löneunderlag, exportera | | | ✓ | |
 | Låsa upp månad | | | ✓ | |
-| Användare, standardpass, helgdagar | | | | ✓ |
+| Personal, standardpass, helgdagar | | | | ✓ |
 
-## Föreslagen mappstruktur
+En person kan ha flera roller.
+
+## Sidor
+
+| Sökväg | Roll | Innehåll |
+|---|---|---|
+| `/login` | alla | Begär inloggningslänk |
+| `/shifts` | sommarjobbare | Nästa pass, kommande och tidigare pass, min tid |
+| `/day/[date]` | alla | Vem som jobbar en viss dag |
+| `/planning` | planerare | Veckorutnät, snabbval av standardpass, kopiera vecka |
+| `/planning/shifts/new`, `/planning/shifts/[id]` | planerare | Skapa och ändra pass, sjukdom, ersättare, historik |
+| `/reconcile` | planerare | Månadsavstämning och godkännande |
+| `/payroll`, `/payroll/[month]` | lön | Godkända månader, löneunderlag, lås upp |
+| `/payroll/[month]/export?format=csv\|xlsx` | lön | Export |
+| `/admin/users`, `/admin/templates`, `/admin/holidays` | admin | Grunddata |
+
+## Kodstruktur
 
 ```
 src/
   app/
-    (auth)/login/          inloggning
-    mina-pass/             sommarjobbare
-    dag/[datum]/           vem jobbar
-    planering/             rutnät, sjukdom, månadsavstämning
-    lon/                   löneunderlag och export
-    admin/                 användare, standardpass, helgdagar
+    login/                 inloggning och utloggning
+    api/auth/[...all]/     Better Auth
+    (app)/                 inloggade sidor, gemensam meny
+      shifts/  day/  planning/  reconcile/  payroll/  admin/
+  components/              delade komponenter
+  db/
+    schema.ts              tabeller
+    seed.ts                påhittad demodata
   lib/
     auth.ts                Better Auth-konfiguration
-    db/                    schema och migreringar
-    time.ts                beräkningsregler (arbetad tid, helg, sjuk)
-    permissions.ts         rollkontroller
-docs/
+    session.ts             inloggad användare och rollkontroller
+    time.ts                beräkningsregler (arbetad tid, helg, sjuk) – testad
+    dates.ts               datumhjälpare – testad
+    holidays.ts            svenska röda dagar – testad
+    schedule.ts            databasfrågor för pass, låsning och löneunderlag
+    payroll-export.ts      CSV och Excel – testad
+    audit.ts               ändringslogg
+    mail.ts                utskick av inloggningslänk
+drizzle/                   SQL-migreringar
+scripts/
+  migrate.mjs              kör migreringar (även i Docker)
+  create-admin.mjs         skapar första admin
 ```
-
-Beräkningsreglerna i `lib/time.ts` ska ha enhetstester, eftersom löneunderlaget bygger på dem.
 
 ## Drift
 
-- `docker-compose.yml` med app och PostgreSQL.
-- Miljövariabler: databas-URL, hemlighet för Better Auth, SMTP-inställningar, publik URL.
-- Nattlig `pg_dump` till backup.
-- HTTPS via befintlig reverse proxy.
+- `docker-compose.yml` med app och PostgreSQL. Appen lyssnar bara på `127.0.0.1:3000` och nås via reverse proxy med HTTPS.
+- Migreringar körs automatiskt när containern startar.
+- Miljövariabler enligt `.env.example`.
+- Nattlig `pg_dump` till backup, se README.

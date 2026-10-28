@@ -2,17 +2,20 @@
 
 PostgreSQL. Tider lagras som lokal tid (Europe/Stockholm) med separata kolumner för datum och klockslag, eftersom pass alltid tillhör en arbetsdag och inte går över midnatt. Lunch och beräknade tider hanteras i hela minuter.
 
-Tabeller för inloggning och sessioner hanteras av Better Auth och beskrivs inte här.
+Schemat finns i `src/db/schema.ts` och migreringarna i `drizzle/`. Id:n är UUID:er lagrade som text.
 
 ## Tabeller
 
-### `users`
+### `user`
+Tabellen delas med Better Auth, som också använder `session`, `account` och `verification`. Kolumnerna nedan utöver Better Auths egna hanteras av appen.
+
 | Kolumn | Typ | Kommentar |
 |---|---|---|
-| id | uuid | |
+| id | text | |
 | name | text | |
 | email | text, unik | Används för inloggning |
 | phone | text, null | |
+| email_verified, image | | Better Auth |
 | roles | text[] | `worker`, `planner`, `payroll`, `admin` |
 | fortnox_employee_id | text, null | Anställningsnummer i Fortnox |
 | active | boolean | Inaktiva kan inte logga in och visas inte i schemat |
@@ -23,7 +26,7 @@ Inga känsliga personuppgifter lagras.
 ### `shift_templates` (standardpass)
 | Kolumn | Typ | Kommentar |
 |---|---|---|
-| id | uuid | |
+| id | text | |
 | name | text | t.ex. "Förmiddag" |
 | start_time | time | |
 | end_time | time | |
@@ -34,36 +37,36 @@ Inga känsliga personuppgifter lagras.
 ### `shifts` (pass)
 | Kolumn | Typ | Kommentar |
 |---|---|---|
-| id | uuid | |
-| user_id | uuid → users | |
+| id | text | |
+| user_id | text → user | |
 | date | date | |
 | start_time | time | |
 | end_time | time | `end_time > start_time` |
 | lunch_minutes | integer | `>= 0` och mindre än passets längd |
 | type | text | `regular` eller `supervision` (arbetsledning) |
 | status | text | `planned` eller `sick` |
-| template_id | uuid → shift_templates, null | Vilket standardpass passet utgick från |
-| replaces_shift_id | uuid → shifts, null | Satt på ersättarens pass |
+| template_id | text → shift_templates, null | Vilket standardpass passet utgick från |
+| replaces_shift_id | text → shifts, null | Satt på ersättarens pass |
 | note | text, null | |
-| created_by, updated_by | uuid → users | |
+| created_by, updated_by | text → user | |
 | created_at, updated_at | timestamptz | |
 
 Index på `(date)` och `(user_id, date)`.
 
-Överlappande pass för samma person tillåts inte (kontrolleras i applikationen).
+Databasen kontrollerar att sluttid är efter starttid, att lunch inte är negativ och att typ och status har giltiga värden. Överlappande pass för samma person och att lunchen är kortare än passet kontrolleras i applikationen.
 
 ### `month_approvals`
 | Kolumn | Typ | Kommentar |
 |---|---|---|
 | month | date, PK | Första dagen i månaden |
-| status | text | `approved` |
-| approved_by | uuid → users | |
+| status | text | `approved` eller `unlocked` |
+| approved_by | text → user | |
 | approved_at | timestamptz | |
-| unlocked_by | uuid → users, null | Satt om löneköraren skickat tillbaka |
+| unlocked_by | text → user, null | Satt när löneköraren skickat tillbaka månaden |
 | unlocked_at | timestamptz, null | |
-| unlock_comment | text, null | |
+| unlock_comment | text, null | Vad som behöver rättas |
 
-En månad utan rad, eller med senaste händelse *upplåst*, är öppen för ändringar. Historiken över godkännanden kan alternativt läggas i `audit_log`.
+En månad är låst när status är `approved`. Saknas rad är månaden öppen. Hela historiken över godkännanden och upplåsningar finns i `audit_log`.
 
 ### `holidays`
 | Kolumn | Typ | Kommentar |
@@ -75,12 +78,12 @@ En månad utan rad, eller med senaste händelse *upplåst*, är öppen för änd
 | Kolumn | Typ | Kommentar |
 |---|---|---|
 | id | bigserial | |
-| entity | text | t.ex. `shift`, `month_approval` |
+| entity | text | `shift`, `month`, `user`, `template`, `holiday` |
 | entity_id | text | |
-| action | text | `create`, `update`, `delete`, `approve`, `unlock` |
+| action | text | `create`, `update`, `delete`, `sick`, `unsick`, `replace`, `approve`, `unlock` |
 | before | jsonb, null | |
 | after | jsonb, null | |
-| user_id | uuid → users | |
+| user_id | text → user | |
 | created_at | timestamptz | |
 
 ## Beräkningsregler

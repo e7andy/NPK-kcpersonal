@@ -1,0 +1,140 @@
+@import "tailwindcss";
+@import "@fontsource/atkinson-hyperlegible/400.css";
+@import "@fontsource/atkinson-hyperlegible/700.css";
+@import "@fontsource-variable/bricolage-grotesque/index.css";
+
+/*
+ * Palette from the lake: deep water ink on birch white, with sun for
+ * weekends, lingon for sick and reed for supervision.
+ */
+@theme {
+  --color-ink: #12313d;
+  --color-ink-soft: #4b6570;
+  --color-paper: #f5f8f7;
+  --color-card: #ffffff;
+  --color-line: #d4dfdd;
+  --color-lake: #1f6f8b;
+  --color-lake-deep: #17566c;
+  --color-lake-wash: #e3eff2;
+  --color-sun: #f2c14e;
+  --color-sun-wash: #fdf4dc;
+  --color-lingon: #b83a4b;
+  --color-lingon-wash: #f8e6e8;
+  --color-reed: #4e7f52;
+  --color-reed-wash: #e6efe5;
+
+  --font-sans: "Atkinson Hyperlegible", system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque Variable", "Atkinson Hyperlegible", sans-serif;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+  }
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+  }
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 650;
+  }
+  a {
+    color: var(--color-lake);
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-sun);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  table {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-height: 2.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    background: var(--color-lake);
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .btn:hover {
+    background: var(--color-lake-deep);
+  }
+  .btn-quiet {
+    background: transparent;
+    color: var(--color-lake);
+    border: 1px solid var(--color-line);
+  }
+  .btn-quiet:hover {
+    background: var(--color-lake-wash);
+  }
+  .btn-danger {
+    background: var(--color-lingon);
+  }
+  .btn-danger:hover {
+    background: #9a2f3e;
+  }
+  .field {
+    display: grid;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+  }
+  .input {
+    min-height: 2.5rem;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid var(--color-line);
+    border-radius: 0.4rem;
+    background: white;
+    font-weight: 400;
+    font-size: 1rem;
+    color: var(--color-ink);
+  }
+  .panel {
+    background: var(--color-card);
+    border: 1px solid var(--color-line);
+    border-radius: 0.75rem;
+  }
+  .notice-error {
+    border-left: 4px solid var(--color-lingon);
+    background: var(--color-lingon-wash);
+    padding: 0.6rem 0.9rem;
+    border-radius: 0.25rem;
+  }
+  .notice-ok {
+    border-left: 4px solid var(--color-reed);
+    background: var(--color-reed-wash);
+    padding: 0.6rem 0.9rem;
+    border-radius: 0.25rem;
+  }
+  .time {
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+    font-weight: 650;
+  }
+}
