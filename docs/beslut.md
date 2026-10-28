@@ -25,6 +25,8 @@
 | 2026-10-28 | Ingen Docker. Servern delas av flera kunder som är isolerade via Virtualmin, och vanlig Docker kräver root-liknande rättigheter. Appen körs i stället som systemd-tjänst under Virtualmin-användaren bakom Apache. |
 | 2026-10-28 | Tjänsten nås på `kcpersonal.npk.nu`, en sub-server under npk.nu. Databasen är sub-serverns PostgreSQL-databas och ingår i Virtualmins backup. |
 | 2026-10-28 | Inloggningsmejl skickas via serverns egen Postfix på `localhost`, från en adress på npk.nu. |
+| 2026-10-28 | Appen lyssnar på en unix-socket i stället för en TCP-port. På en server med flera kunder kan andra användare nå och kapa loopback-portar, men inte en socket i en katalog som bara appen och Apache kommer in i. Det kräver en egen startfil (`server.mjs`) eftersom `next start` bara stöder portar. |
+| 2026-10-28 | Appen körs som Virtualmin-användaren `npk.nu` från `/home/npk.nu/domains/kcpersonal.npk.nu/app`. |
 
 ## Öppna frågor
 

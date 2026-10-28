@@ -80,6 +80,7 @@ src/
     payroll-export.ts      CSV och Excel – testad
     audit.ts               ändringslogg
     mail.ts                utskick av inloggningslänk
+server.mjs                 produktionsserver (unix-socket), ersätter `next start`
 drizzle/                   SQL-migreringar
 scripts/
   migrate.mjs              kör migreringar
@@ -95,7 +96,7 @@ deploy/
 Se [drift.md](drift.md). I korthet:
 
 - Sub-server `kcpersonal.npk.nu` under npk.nu i Virtualmin.
-- Node.js körs som systemd-tjänst (`deploy/kcpersonal.service`) under Virtualmin-användaren och lyssnar bara på `127.0.0.1:3010`.
+- Node.js körs som systemd-tjänst (`deploy/kcpersonal.service`) under Virtualmin-användaren `npk.nu` och lyssnar på unix-socketen `/run/kcpersonal/kcpersonal.sock`, som bara appen och Apache kommer åt.
 - Apache är proxy med HTTPS (`deploy/apache-proxy.conf`).
 - PostgreSQL-databasen hör till sub-servern och ingår i Virtualmins backup.
 - Uppdatering med `scripts/deploy.sh`.

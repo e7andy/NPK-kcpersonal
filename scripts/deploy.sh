@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Updates kcpersonal on the server to the latest commit on main.
-# Run as the site user from anywhere: ~/domains/kcpersonal.npk.nu/app/scripts/deploy.sh
+# Run as the site user (npk.nu): ~/domains/kcpersonal.npk.nu/app/scripts/deploy.sh
 #
 # Requires a sudoers rule that lets the site user restart the service, see
 # docs/drift.md.
@@ -28,10 +28,14 @@ npm run db:migrate
 echo "==> Restarting service"
 sudo /usr/bin/systemctl restart kcpersonal
 
-sleep 2
-if systemctl is-active --quiet kcpersonal; then
-  echo "kcpersonal is running."
-else
-  echo "kcpersonal failed to start. Check: journalctl -u kcpersonal -n 50" >&2
-  exit 1
-fi
+# Wait for the app to answer on its socket.
+socket=/run/kcpersonal/kcpersonal.sock
+for _ in $(seq 1 20); do
+  if curl -fs -o /dev/null --unix-socket "$socket" http://localhost/login 2>/dev/null; then
+    echo "kcpersonal is running."
+    exit 0
+  fi
+  sleep 1
+done
+echo "kcpersonal did not respond. Check: journalctl -u kcpersonal -n 50" >&2
+exit 1

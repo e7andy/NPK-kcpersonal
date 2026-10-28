@@ -43,6 +43,7 @@ Föregående månad är godkänd i demodatan så att lönevyn har innehåll.
 | Kommando | Gör |
 |---|---|
 | `npm run dev` | Utvecklingsserver |
+| `npm start` | Produktionsserver (`server.mjs`) efter `npm run build`, på `127.0.0.1:3000` eller `SOCKET_PATH` |
 | `npm test` | Enhetstester (beräkningsregler, datum, helgdagar, export) |
 | `npm run lint` | Typkontroll |
 | `npm run db:generate` | Skapar migrering efter ändring i `src/db/schema.ts` |
@@ -52,7 +53,7 @@ Föregående månad är godkänd i demodatan så att lönevyn har innehåll.
 
 ## Driftsättning
 
-Tjänsten körs på https://kcpersonal.npk.nu som en sub-server under npk.nu i Virtualmin. Node.js körs som en systemd-tjänst bakom Apache och använder PostgreSQL på samma server. Ingen Docker används.
+Tjänsten körs på https://kcpersonal.npk.nu som en sub-server under npk.nu i Virtualmin. Node.js körs som en systemd-tjänst under användaren `npk.nu`, lyssnar på en unix-socket bakom Apache och använder PostgreSQL på samma server. Ingen Docker används.
 
 Hela installationen steg för steg finns i [docs/drift.md](docs/drift.md). Uppdatering görs med:
 

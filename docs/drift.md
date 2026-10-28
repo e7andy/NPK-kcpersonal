@@ -4,25 +4,27 @@ kcpersonal körs på den egna VPS:en som en sub-server under **npk.nu** i Virtua
 
 ```
 Webbläsare ──HTTPS──▶ Apache (kcpersonal.npk.nu, Virtualmin)
-                         │ proxy
+                         │ proxy via unix-socket
                          ▼
-                      Node.js, systemd-tjänsten kcpersonal (127.0.0.1:3010)
+                      Node.js, systemd-tjänsten kcpersonal
+                      /run/kcpersonal/kcpersonal.sock
                          │
                          ▼
                       PostgreSQL (databas för sub-servern)
 ```
 
-- Appen körs som Virtualmin-användaren för npk.nu. Kunderna på servern förblir isolerade från varandra.
+- Appen körs som Virtualmin-användaren `npk.nu`. Kunderna på servern förblir isolerade från varandra.
+- Appen lyssnar på en unix-socket i stället för en port. Bara appen och Apache kommer åt socketen. Andra användare på servern kan varken ansluta till den eller ta över den, och inga portar behöver hållas reda på.
 - Databasen hör till sub-servern och kommer med i Virtualmins backup.
 - Inloggningslänkar skickas via den lokala Postfix-servern.
 
-Exemplen nedan utgår från att Virtualmin-användaren för npk.nu heter `npk` och att appen ligger i `/home/npk/domains/kcpersonal.npk.nu/app`. Byt ut namnet om det skiljer sig.
+Appen ligger i `/home/npk.nu/domains/kcpersonal.npk.nu/app`.
 
 ## Engångsinstallation (som root)
 
 ### 1. Node.js 22
 
-Kontrollera med `node -v`. Saknas Node 22 eller senare, installera från NodeSource:
+Kontrollera med `node -v`. Saknas Node 22.9 eller senare, installera från NodeSource:
 
 ```sh
 curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
@@ -52,9 +54,11 @@ systemctl reload apache2
 2. Lägg till ett DNS-A-record för `kcpersonal.npk.nu` om DNS för npk.nu inte hanteras av Virtualmin, till exempel om den ligger på Cloudflare.
 3. Begär ett Let's Encrypt-certifikat för sub-servern.
 4. Ställ in att HTTP omdirigeras till HTTPS.
-5. Skapa en PostgreSQL-databas för sub-servern, till exempel `kcpersonal`. Inloggningen är Virtualmin-användaren och dess lösenord, om du inte skapar en separat databasanvändare.
+5. Skapa en PostgreSQL-databas för sub-servern, till exempel `kcpersonal`. Notera vilken databasanvändare och vilket lösenord Virtualmin anger.
 
-## Installera appen (som användaren `npk`)
+## Installera appen (som användaren `npk.nu`)
+
+Byt till användaren med `su - npk.nu`.
 
 Lägg appen **utanför** `public_html`, annars kan Apache servera `.env` och källkoden.
 
@@ -70,12 +74,14 @@ Fyll i `.env`:
 
 | Variabel | Värde |
 |---|---|
-| `DATABASE_URL` | `postgresql://npk:LÖSENORD@127.0.0.1:5432/kcpersonal` |
+| `DATABASE_URL` | `postgresql://ANVÄNDARE:LÖSENORD@127.0.0.1:5432/kcpersonal` |
 | `BETTER_AUTH_SECRET` | Resultatet av `openssl rand -base64 32` |
 | `BETTER_AUTH_URL` | `https://kcpersonal.npk.nu` |
 | `SMTP_HOST` | `localhost` |
 | `SMTP_PORT` | `25` |
 | `SMTP_FROM` | `"kcpersonal <noreply@npk.nu>"` |
+
+Innehåller lösenordet specialtecken som `@`, `:` eller `/` måste de URL-kodas i `DATABASE_URL`.
 
 Lämna `SMTP_USER` och `SMTP_PASSWORD` tomma. Postfix tar emot mejl från servern själv utan inloggning. Mot `localhost` hoppar appen över STARTTLS, eftersom certifikatet gäller serverns publika namn. Trafiken lämnar aldrig maskinen. Se till att npk.nu har DKIM så att mejlen inte hamnar i skräpposten.
 
@@ -93,19 +99,23 @@ npm run create-admin -- du@example.se "Ditt Namn"
 ## Systemd-tjänst (som root)
 
 ```sh
-cp /home/npk/domains/kcpersonal.npk.nu/app/deploy/kcpersonal.service /etc/systemd/system/
-# Justera User, Group och sökvägar om användaren inte heter npk.
+cp /home/npk.nu/domains/kcpersonal.npk.nu/app/deploy/kcpersonal.service /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable --now kcpersonal
 systemctl status kcpersonal
 ```
 
-Tjänsten lyssnar bara på `127.0.0.1:3010` och begränsas till 512 MB minne. Den kan bara skriva till appens `.next`-katalog. Välj en annan port i tjänstefilen och Apache-konfigurationen om 3010 redan används (`ss -ltn | grep 3010`).
+systemd varnar att `npk.nu` inte följer de strikta reglerna för användarnamn. Varningen är ofarlig.
+
+Tjänsten gör följande:
+- Den lyssnar på `/run/kcpersonal/kcpersonal.sock`. Katalogen skapas av systemd vid start, ägs av `npk.nu` och har gruppen `www-data`. Bara appen och Apache kommer in i den. Katalogen tas bort när tjänsten stoppas.
+- Minnet begränsas till 512 MB.
+- Appen kan bara skriva till sin egen `.next`-katalog.
 
 Låt användaren starta om tjänsten vid uppdatering, utan att få andra root-rättigheter:
 
 ```sh
-echo 'npk ALL=(root) NOPASSWD: /usr/bin/systemctl restart kcpersonal' > /etc/sudoers.d/kcpersonal
+echo 'npk.nu ALL=(root) NOPASSWD: /usr/bin/systemctl restart kcpersonal' > /etc/sudoers.d/kcpersonal
 chmod 440 /etc/sudoers.d/kcpersonal
 visudo -c
 ```
@@ -114,19 +124,27 @@ visudo -c
 
 Lägg in innehållet i [`deploy/apache-proxy.conf`](../deploy/apache-proxy.conf) i sub-serverns HTTPS-vhost. I Virtualmin görs det under *Web Configuration → Configure SSL Website → Edit Directives*. Kör sedan `systemctl reload apache2`.
 
-`ProxyPreserveHost On` krävs. Utan den avvisar Next.js formulären (server actions) eftersom värdnamnet inte stämmer. Let's Encrypt-förnyelser undantas från proxyn.
+- `ProxyPreserveHost On` krävs. Utan den avvisar Next.js formulären (server actions) eftersom värdnamnet inte stämmer.
+- Let's Encrypt-förnyelser undantas från proxyn.
 
 Öppna https://kcpersonal.npk.nu och logga in med admin-adressen. Under *Helgdagar* lägger du till årets röda dagar. Sedan lägger du in standardpass och personal.
 
 ## Uppdatera
 
-Som användaren `npk`:
+Som användaren `npk.nu`:
 
 ```sh
 ~/domains/kcpersonal.npk.nu/app/scripts/deploy.sh
 ```
 
-Skriptet hämtar senaste koden, installerar beroenden, bygger, kör migreringar och startar om tjänsten. Under bygget kan sidan svara med fel en kort stund.
+Skriptet gör följande:
+1. hämtar senaste koden
+2. installerar beroenden och bygger
+3. kör migreringar
+4. startar om tjänsten
+5. kontrollerar att appen svarar på socketen
+
+Under bygget kan sidan svara med fel en kort stund.
 
 ## Loggar och felsökning
 
@@ -134,8 +152,18 @@ Skriptet hämtar senaste koden, installerar beroenden, bygger, kör migreringar 
 |---|---|
 | Appens logg | `journalctl -u kcpersonal -f` |
 | Status | `systemctl status kcpersonal` |
-| Svarar appen lokalt? | `curl -I http://127.0.0.1:3010/login` |
+| Svarar appen? (som `npk.nu` eller root) | `curl -I --unix-socket /run/kcpersonal/kcpersonal.sock http://localhost/login` |
 | Apache | `/var/log/virtualmin/kcpersonal.npk.nu_error_log` |
+
+Svarar Apache med 503 men appen svarar på socketen, kontrollera att `/run/kcpersonal` har gruppen `www-data` (`ls -ld /run/kcpersonal`).
+
+## Teknisk not: egen startfil
+
+`next start` kan bara lyssna på en TCP-port, så appen startas med `server.mjs`. Filen gör två saker:
+- Den lyssnar på socketen som anges i `SOCKET_PATH`. Utan `SOCKET_PATH` lyssnar den på `127.0.0.1:PORT`.
+- Den styr Next.js interna anrop till sig själv till samma socket. När ett formulär omdirigerar hämtar Next.js målsidan från sin egen server och skickar med besökarens cookies. Annars skulle Next.js anropa `127.0.0.1:3000`, där en annan kunds app kan lyssna.
+
+Det här bygger på en intern inställning i Next.js (`__NEXT_PRIVATE_ORIGIN`). Gör så här efter uppgradering av Next.js: skicka ett formulär, till exempel inloggningen, och kontrollera att `journalctl -u kcpersonal` inte visar `failed to get redirect response`.
 
 ## Backup
 
