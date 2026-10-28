@@ -9,3 +9,4 @@ Internt schema- och tidsverktyg för kanotcentralens sommarjobbare. Läs `README
 - Behörighet kontrolleras på serversidan.
 - Lagra inga känsliga personuppgifter (personnummer, bankuppgifter, adress, anhörig, skatt). Det är ett uttalat beslut, se `docs/beslut.md`.
 - Nya beslut läggs till i `docs/beslut.md`.
+- Repot kan vara publikt. Hemligheter ligger bara i `.env` på servern; nya miljövariabler läggs till i `.env.example` utan riktiga värden. Seed-data och testdata ska vara påhittade, aldrig riktiga personers namn, e-post eller telefon.
