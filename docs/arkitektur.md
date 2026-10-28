@@ -5,7 +5,7 @@
 | Del | Val |
 |---|---|
 | Ramverk | Next.js 16 (App Router), TypeScript |
-| Databas | PostgreSQL 16 |
+| Databas | PostgreSQL 14 eller senare (servern kör Ubuntu 22.04 med version 14) |
 | Databasåtkomst | Drizzle ORM, SQL-migreringar i `drizzle/` |
 | Inloggning | Better Auth med plugin för magic link |
 | UI | Server-renderade sidor och server actions, Tailwind CSS 4 |

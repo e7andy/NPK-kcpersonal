@@ -1,6 +1,6 @@
 # Drift
 
-kcpersonal körs på den egna VPS:en som en sub-server under **npk.nu** i Virtualmin, på adressen **https://kcpersonal.npk.nu**. Ingen Docker används.
+kcpersonal körs på den egna VPS:en (Ubuntu 22.04) som en sub-server under **npk.nu** i Virtualmin, på adressen **https://kcpersonal.npk.nu**. Ingen Docker används.
 
 ```
 Webbläsare ──HTTPS──▶ Apache (kcpersonal.npk.nu, Virtualmin)
@@ -24,7 +24,7 @@ Appen ligger i `/home/npk.nu/domains/kcpersonal.npk.nu/app`.
 
 ### 1. Node.js 22
 
-Kontrollera med `node -v`. Saknas Node 22.9 eller senare, installera från NodeSource:
+Kontrollera med `node -v`. Ubuntu 22.04 har bara Node 12 i sina egna paket, så installera Node 22 från NodeSource:
 
 ```sh
 curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
@@ -38,6 +38,8 @@ Systemd-tjänsten förutsätter att `node` finns i `/usr/bin/node`.
 ```sh
 apt install postgresql
 ```
+
+På Ubuntu 22.04 ger det PostgreSQL 14, vilket räcker.
 
 Aktivera sedan PostgreSQL i Virtualmin under *System Settings → Features and Plugins*, så att sub-servrar kan få PostgreSQL-databaser.
 

@@ -59,7 +59,7 @@ Standardpassen som planeraren väljer bland.
 
 ## Kom igång lokalt
 
-Kräver Node.js 22 och PostgreSQL 16.
+Kräver Node.js 22.9 eller senare och PostgreSQL 14 eller senare.
 
 ```sh
 npm install
