@@ -114,8 +114,12 @@ export default async function PlanningPage({
           </thead>
           <tbody>
             {workers.map((w) => {
-              const weekMinutes = shifts
-                .filter((s) => s.userId === w.id && s.status === "planned")
+              const planned = shifts.filter((s) => s.userId === w.id && s.status === "planned");
+              const weekMinutes = planned
+                .filter((s) => s.type === "regular")
+                .reduce((sum, s) => sum + paidMinutes(s), 0);
+              const weekTrustMinutes = planned
+                .filter((s) => s.type === "trust")
                 .reduce((sum, s) => sum + paidMinutes(s), 0);
               return (
                 <tr key={w.id} className="border-t border-line align-top">
@@ -159,6 +163,11 @@ export default async function PlanningPage({
                   })}
                   <td className="time border-l border-line px-3 py-2 text-right whitespace-nowrap">
                     {weekMinutes ? formatDuration(weekMinutes) : "–"}
+                    {weekTrustMinutes > 0 && (
+                      <span className="block text-xs font-normal text-reed">
+                        + {formatDuration(weekTrustMinutes)} förtroendetid
+                      </span>
+                    )}
                   </td>
                 </tr>
               );
@@ -172,7 +181,7 @@ export default async function PlanningPage({
           <span className="inline-block size-3 rounded-sm bg-lake-wash ring-1 ring-lake/30" /> Ordinarie
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="inline-block size-3 rounded-sm bg-reed-wash ring-1 ring-reed/40" /> Arbetsledning
+          <span className="inline-block size-3 rounded-sm bg-reed-wash ring-1 ring-reed/40" /> Förtroendetid
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-block size-3 rounded-sm bg-lingon-wash ring-1 ring-lingon/40" /> Sjuk
@@ -212,7 +221,7 @@ function ShiftChip({ shift }: { shift: ShiftRow }) {
   const tone =
     shift.status === "sick"
       ? "bg-lingon-wash text-lingon line-through decoration-1"
-      : shift.type === "supervision"
+      : shift.type === "trust"
         ? "bg-reed-wash text-reed"
         : "bg-lake-wash text-lake-deep";
   return (

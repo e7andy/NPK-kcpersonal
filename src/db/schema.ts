@@ -106,7 +106,8 @@ export const shifts = pgTable(
     startTime: time("start_time").notNull(),
     endTime: time("end_time").notNull(),
     lunchMinutes: integer("lunch_minutes").notNull().default(0),
-    type: text("type").$type<"regular" | "supervision">().notNull().default("regular"),
+    // "trust" = förtroendetid, see lib/time.ts
+    type: text("type").$type<"regular" | "trust">().notNull().default("regular"),
     status: text("status").$type<"planned" | "sick">().notNull().default("planned"),
     templateId: text("template_id").references(() => shiftTemplates.id, { onDelete: "set null" }),
     replacesShiftId: text("replaces_shift_id").references((): AnyPgColumn => shifts.id, {
@@ -123,7 +124,7 @@ export const shifts = pgTable(
     index("shifts_user_date_idx").on(t.userId, t.date),
     check("shifts_end_after_start", sql`${t.endTime} > ${t.startTime}`),
     check("shifts_lunch_non_negative", sql`${t.lunchMinutes} >= 0`),
-    check("shifts_type_valid", sql`${t.type} in ('regular', 'supervision')`),
+    check("shifts_type_valid", sql`${t.type} in ('regular', 'trust')`),
     check("shifts_status_valid", sql`${t.status} in ('planned', 'sick')`),
   ],
 );

@@ -20,7 +20,7 @@ export interface ShiftRow {
   startTime: string;
   endTime: string;
   lunchMinutes: number;
-  type: "regular" | "supervision";
+  type: "regular" | "trust";
   status: "planned" | "sick";
   replacesShiftId: string | null;
   note: string | null;

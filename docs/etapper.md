@@ -2,7 +2,7 @@
 
 Etapp 1–5 utgör en första version att köra en säsong med.
 
-**Status 2026-10-28:** en prototyp som täcker etapp 1–5 är byggd. Den behöver provas av planerare och lönekörare innan säsongen, och de öppna frågorna i [beslut.md](beslut.md) behöver besvaras.
+**Status 2026-10-28:** en prototyp som täcker etapp 1–5 är byggd. Den behöver provas av planerare och lönekörare innan säsongen, De öppna frågorna är besvarade, se [beslut.md](beslut.md).
 
 ## Etapp 1: Grund
 - Next.js-projekt och PostgreSQL.
@@ -15,7 +15,7 @@ Etapp 1–5 utgör en första version att köra en säsong med.
 ## Etapp 2: Planering
 - Planerarens rutnät (personer × dagar).
 - Skapa pass från standardpass, justera tider och lunch.
-- Passtyp ordinarie/arbetsledning.
+- Passtyp ordinarie/förtroendetid.
 - Kopiera dag eller vecka.
 - Kontroll av överlappande pass.
 
@@ -32,13 +32,12 @@ Etapp 1–5 utgör en första version att köra en säsong med.
 
 ## Etapp 5: Lön
 - Månadsavstämning och *Godkänn månad* med låsning.
-- Lönevy med normaltid, helgtimmar, sjuktimmar och arbetsledning per dag.
+- Lönevy med normaltid, helgtimmar, sjuktimmar och förtroendetid per dag.
 - Export till CSV och Excel.
 - *Lås upp* med kommentar.
 - Enhetstester för beräkningsreglerna.
 
 ## Senare
-- Koppling till Fortnox API (se [fortnox.md](fortnox.md)).
 - Mejlnotis när ens pass ändras.
 - Påminnelse dagen före ett pass.
 - iCal-länk per sommarjobbare.

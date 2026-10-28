@@ -24,7 +24,7 @@ export function ShiftForm({
     startTime: string;
     endTime: string;
     lunchMinutes: number;
-    type: "regular" | "supervision";
+    type: "regular" | "trust";
     note: string | null;
   };
   workers: { id: string; name: string }[];
@@ -104,7 +104,7 @@ export function ShiftForm({
           Typ
           <select name="type" defaultValue={shift.type} className="input">
             <option value="regular">Ordinarie</option>
-            <option value="supervision">Arbetsledning</option>
+            <option value="trust">Förtroendetid (arbetsledning, offboarding m.m.)</option>
           </select>
         </label>
         <label className="field sm:col-span-2">

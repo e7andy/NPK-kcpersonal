@@ -86,6 +86,9 @@ export default async function MyShiftsPage({
                 {total.weekendMinutes > 0 && (
                   <p className="text-sm text-ink-soft">varav helg {formatDuration(total.weekendMinutes)}</p>
                 )}
+                {total.trustMinutes > 0 && (
+                  <p className="text-sm text-ink-soft">förtroendetid {formatDuration(total.trustMinutes)}</p>
+                )}
               </div>
             );
           })}
@@ -111,7 +114,7 @@ function NextShiftCard({ shift, isToday }: { shift: ShiftRow; isToday: boolean }
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 bg-lake-deep px-5 py-3 text-sm">
         <span>{shift.lunchMinutes > 0 ? `Lunch ${shift.lunchMinutes} min` : "Ingen lunch"}</span>
         <span>Arbetstid {formatDuration(paidMinutes(shift))}</span>
-        {shift.type === "supervision" && <span className="font-bold">Arbetsledning</span>}
+        {shift.type === "trust" && <span className="font-bold">Förtroendetid</span>}
         <Link href={`/day/${shift.date}`} className="ml-auto font-bold text-white">
           Vem jobbar?
         </Link>

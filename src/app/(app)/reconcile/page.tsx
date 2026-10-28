@@ -76,7 +76,7 @@ export default async function ReconcilePage({
                   <Stat label="Normaltid" minutes={p.total.normalMinutes} />
                   <Stat label="Helg" minutes={p.total.weekendMinutes} />
                   <Stat label="Sjuk" minutes={p.total.sickMinutes} />
-                  <Stat label="Arbetsledning" minutes={p.total.supervisionMinutes} />
+                  <Stat label="Förtroendetid" minutes={p.total.trustMinutes} />
                 </summary>
                 <ul className="divide-y divide-line border-t border-line">
                   {own.map((s) => (

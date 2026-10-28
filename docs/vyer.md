@@ -25,7 +25,7 @@ Sommarjobbare kan inte ändra pass. Ändringar görs av planeraren.
 **Schema (rutnät)**
 - Personer på rader, dagar på kolumner. Visning en eller två veckor, bläddra framåt och bakåt.
 - Klick i tom cell: välj standardpass. Passet skapas direkt.
-- Klick på pass: redigera start, slut, lunch och typ (ordinarie/arbetsledning), eller ta bort.
+- Klick på pass: redigera start, slut, lunch och typ (ordinarie/förtroendetid), eller ta bort.
 - Summering per person och vecka.
 - Kopiera dag eller vecka till annat datum.
 - Helgdagar och helger markeras visuellt.
@@ -53,7 +53,7 @@ Sommarjobbare kan inte ändra pass. Ändringar görs av planeraren.
   - normaltid (timmar)
   - helgtimmar
   - sjuktimmar
-  - arbetsledningstimmar
+  - förtroendetid
 - Summa per person.
 - Export (CSV och Excel). Se [fortnox.md](fortnox.md).
 - *Lås upp* skickar tillbaka månaden till planeraren om något är fel. Kommentar krävs.

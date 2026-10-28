@@ -9,7 +9,7 @@ import { db } from "@/db";
 import { holidays, ROLES, session, shiftTemplates, user, type Role } from "@/db/schema";
 import { writeAudit } from "@/lib/audit";
 import { isDateString } from "@/lib/dates";
-import { swedishPublicHolidays } from "@/lib/holidays";
+import { defaultHolidays } from "@/lib/holidays";
 import { requireRole } from "@/lib/session";
 import { validateShiftTimes } from "@/lib/time";
 
@@ -153,13 +153,13 @@ export async function addPublicHolidays(formData: FormData) {
   const admin = await requireRole("admin");
   const year = Number(str(formData, "year"));
   if (!Number.isInteger(year) || year < 2020 || year > 2100) back("/admin/holidays", "error", "Ogiltigt år.");
-  const list = swedishPublicHolidays(year);
+  const list = defaultHolidays(year);
   await db.transaction(async (tx) => {
     await tx.insert(holidays).values(list).onConflictDoNothing();
     await writeAudit(tx, { entity: "holiday", entityId: String(year), action: "create", after: list, userId: admin.id });
   });
   revalidatePath("/admin/holidays");
-  back(`/admin/holidays?year=${year}`, "ok", `Röda dagar för ${year} är tillagda.`);
+  back(`/admin/holidays?year=${year}`, "ok", `Helgdagar för ${year} är tillagda.`);
 }
 
 export async function deleteHoliday(formData: FormData) {

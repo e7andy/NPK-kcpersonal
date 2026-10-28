@@ -6,7 +6,7 @@ Internt verktyg för kanotcentralen (kc) för att planera sommarjobbarnas arbets
 
 - **Sommarjobbare** ser sina pass i mobilen, och vem som jobbar samma dag.
 - **Planerare** lägger schemat med standardpass eller justerade tider, hanterar sjukdom med ersättare, rättar avvikelser i efterhand och godkänner månaden.
-- **Lönekörare** ser godkända månader med arbetad tid per person och dag, med lunch avdragen och helgtimmar uppdelade, och exporterar underlag till Fortnox.
+- **Lönekörare** ser godkända månader med arbetad tid per person och dag, med lunch avdragen och helgtimmar och förtroendetid uppdelade, och exporterar underlag som förs in manuellt i Fortnox.
 - **Admin** hanterar personal, standardpass och helgdagar.
 
 ## Vad tjänsten inte gör
@@ -68,7 +68,7 @@ Hela installationen steg för steg finns i [docs/drift.md](docs/drift.md). Uppda
 | [docs/krav.md](docs/krav.md) | Bakgrund, roller och krav |
 | [docs/vyer.md](docs/vyer.md) | Vyer och flöden per roll |
 | [docs/datamodell.md](docs/datamodell.md) | Tabeller och beräkningsregler |
-| [docs/fortnox.md](docs/fortnox.md) | Löneunderlag, export och framtida API-koppling |
+| [docs/fortnox.md](docs/fortnox.md) | Löneunderlag, export, helg och förtroendetid |
 | [docs/arkitektur.md](docs/arkitektur.md) | Teknikstack, inloggning, sidor och kodstruktur |
 | [docs/drift.md](docs/drift.md) | Installation och uppdatering på servern (Virtualmin, systemd, Apache) |
 | [docs/etapper.md](docs/etapper.md) | Utvecklingsplan i etapper |

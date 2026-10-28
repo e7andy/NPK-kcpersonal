@@ -73,7 +73,7 @@ describe("summarizeDay", () => {
       normalMinutes: 0,
       weekendMinutes: 0,
       sickMinutes: 0,
-      supervisionMinutes: 0,
+      trustMinutes: 0,
     });
   });
 
@@ -82,7 +82,7 @@ describe("summarizeDay", () => {
       normalMinutes: 330,
       weekendMinutes: 0,
       sickMinutes: 0,
-      supervisionMinutes: 0,
+      trustMinutes: 0,
     });
   });
 
@@ -92,18 +92,28 @@ describe("summarizeDay", () => {
     expect(s.weekendMinutes).toBe(330);
   });
 
-  it("counts supervision as normal time and reports it separately", () => {
+  it("keeps trust time out of normal time", () => {
     const s = summarizeDay(
-      [shift(), shift({ startTime: "15:00", endTime: "16:00", lunchMinutes: 0, type: "supervision" })],
+      [shift(), shift({ startTime: "15:00", endTime: "16:00", lunchMinutes: 0, type: "trust" })],
       false,
     );
-    expect(s.normalMinutes).toBe(390);
-    expect(s.supervisionMinutes).toBe(60);
+    expect(s.normalMinutes).toBe(330);
+    expect(s.trustMinutes).toBe(60);
+  });
+
+  it("gives no weekend time for trust time", () => {
+    const s = summarizeDay([shift({ type: "trust" })], true);
+    expect(s).toEqual({ normalMinutes: 0, weekendMinutes: 0, sickMinutes: 0, trustMinutes: 330 });
+  });
+
+  it("gives no time for trust time marked sick", () => {
+    const s = summarizeDay([shift({ type: "trust", status: "sick" })], false);
+    expect(s).toEqual({ normalMinutes: 0, weekendMinutes: 0, sickMinutes: 0, trustMinutes: 0 });
   });
 
   it("counts sick shifts only as sick time", () => {
     const s = summarizeDay([shift({ status: "sick" })], true);
-    expect(s).toEqual({ normalMinutes: 0, weekendMinutes: 0, sickMinutes: 330, supervisionMinutes: 0 });
+    expect(s).toEqual({ normalMinutes: 0, weekendMinutes: 0, sickMinutes: 330, trustMinutes: 0 });
   });
 });
 

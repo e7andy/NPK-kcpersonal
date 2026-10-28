@@ -11,7 +11,7 @@ export const EXPORT_COLUMNS = [
   "Normaltid (h)",
   "Helgtimmar (h)",
   "Sjuk (h)",
-  "varav arbetsledning (h)",
+  "Förtroendetid (h)",
 ] as const;
 
 type Row = [string, string, string, string, number, number, number, number];
@@ -32,7 +32,7 @@ export function payrollRows(people: PayrollPerson[]): { row: Row; isTotal: boole
           d.normalMinutes,
           d.weekendMinutes,
           d.sickMinutes,
-          d.supervisionMinutes,
+          d.trustMinutes,
         ],
       });
     }
@@ -46,7 +46,7 @@ export function payrollRows(people: PayrollPerson[]): { row: Row; isTotal: boole
         p.total.normalMinutes,
         p.total.weekendMinutes,
         p.total.sickMinutes,
-        p.total.supervisionMinutes,
+        p.total.trustMinutes,
       ],
     });
   }

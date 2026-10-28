@@ -43,7 +43,7 @@ Inga känsliga personuppgifter lagras.
 | start_time | time | |
 | end_time | time | `end_time > start_time` |
 | lunch_minutes | integer | `>= 0` och mindre än passets längd |
-| type | text | `regular` eller `supervision` (arbetsledning) |
+| type | text | `regular` (ordinarie) eller `trust` (förtroendetid) |
 | status | text | `planned` eller `sick` |
 | template_id | text → shift_templates, null | Vilket standardpass passet utgick från |
 | replaces_shift_id | text → shifts, null | Satt på ersättarens pass |
@@ -93,19 +93,21 @@ Arbetad tid lagras aldrig, den räknas alltid fram.
 ```
 passlängd   = end_time − start_time
 arbetad tid = passlängd − lunch_minutes        (om status = planned)
-sjuktid     = passlängd − lunch_minutes        (om status = sick)
+sjuktid     = passlängd − lunch_minutes        (om status = sick och type = regular)
 ```
 
 Per person och dag:
 
 | Fält | Regel |
 |---|---|
-| normaltid | Summa arbetad tid för pass med `status = planned` (både ordinarie och arbetsledning) |
-| arbetsledning | Del av normaltid från pass med `type = supervision` |
+| normaltid | Summa arbetad tid för ordinarie pass med `status = planned` |
+| förtroendetid | Summa tid för pass med `type = trust` och `status = planned`. Ingår inte i normaltid och ger inga helgtimmar |
 | helgtimmar | Lika med normaltid om dagen är helg, annars 0 |
-| sjuktimmar | Summa sjuktid för pass med `status = sick` |
+| sjuktimmar | Summa sjuktid för ordinarie pass med `status = sick` |
 
-**Helg** = lördag, söndag eller datum i `holidays`. Se öppen fråga i [beslut.md](beslut.md).
+**Helg** = lördag, söndag eller datum i `holidays`. Tabellen fylls per år med svenska röda dagar plus midsommarafton (`src/lib/holidays.ts`), och admin kan lägga till fler dagar.
+
+Ett pass med förtroendetid som markeras sjuk ger varken förtroendetid eller sjuktid.
 
 Timmar redovisas med två decimaler (minuter / 60).
 

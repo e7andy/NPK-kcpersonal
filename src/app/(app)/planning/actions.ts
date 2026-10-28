@@ -100,7 +100,7 @@ export async function saveShift(formData: FormData) {
   const startTime = str(formData, "startTime");
   const endTime = str(formData, "endTime");
   const lunchMinutes = Number(str(formData, "lunchMinutes") || "0");
-  const type = str(formData, "type") === "supervision" ? "supervision" : "regular";
+  const type = str(formData, "type") === "trust" ? "trust" : "regular";
   const note = str(formData, "note") || null;
   const templateId = str(formData, "templateId") || null;
   const formPath = id ? `/planning/shifts/${id}` : `/planning/shifts/new?userId=${userId}&date=${date}`;

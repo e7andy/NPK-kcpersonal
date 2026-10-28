@@ -1,6 +1,8 @@
 /**
- * Swedish public holidays ("röda dagar"). Used to pre-fill the holidays table;
- * the table is the source of truth and admins can add eves or other days.
+ * Days that count as weekend for payroll: Swedish public holidays ("röda
+ * dagar") plus Midsommarafton, which kanotcentralen also counts as a holiday.
+ * Used to pre-fill the holidays table; the table is the source of truth and
+ * admins can add or remove days.
  */
 
 import { addDays, formatDate } from "./dates";
@@ -29,7 +31,7 @@ export function easterSunday(year: number): string {
   return formatDate(new Date(Date.UTC(year, month - 1, day)));
 }
 
-/** The Saturday within the given inclusive range of days in a month. */
+/** The first Saturday on or after the given day of the month. */
 function saturdayBetween(year: number, month: number, fromDay: number): string {
   for (let day = fromDay; day < fromDay + 7; day++) {
     const d = new Date(Date.UTC(year, month - 1, day));
@@ -38,7 +40,7 @@ function saturdayBetween(year: number, month: number, fromDay: number): string {
   throw new Error("unreachable");
 }
 
-export function swedishPublicHolidays(year: number): Holiday[] {
+export function defaultHolidays(year: number): Holiday[] {
   const easter = easterSunday(year);
   const p = (m: number, d: number) =>
     `${year}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
@@ -52,6 +54,7 @@ export function swedishPublicHolidays(year: number): Holiday[] {
     { date: addDays(easter, 39), name: "Kristi himmelsfärdsdag" },
     { date: addDays(easter, 49), name: "Pingstdagen" },
     { date: p(6, 6), name: "Sveriges nationaldag" },
+    { date: addDays(saturdayBetween(year, 6, 20), -1), name: "Midsommarafton" },
     { date: saturdayBetween(year, 6, 20), name: "Midsommardagen" },
     { date: saturdayBetween(year, 10, 31), name: "Alla helgons dag" },
     { date: p(12, 25), name: "Juldagen" },

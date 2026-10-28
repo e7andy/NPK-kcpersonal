@@ -48,8 +48,8 @@ export default async function PayrollMonthPage({
       <Flash error={sp.error} />
 
       <p className="text-sm text-ink-soft">
-        Helgtimmar är samma timmar som normaltiden på lördagar, söndagar och röda dagar, och läggs till en gång till i
-        Fortnox. Arbetsledning ingår i normaltiden.
+        Helgtimmar är samma timmar som normaltiden på lördagar, söndagar, röda dagar och midsommarafton, och läggs till en gång till i
+        Fortnox. Förtroendetid, till exempel arbetsledning och offboarding, ligger utanför normaltiden och ger inga helgtimmar.
       </p>
 
       {people.map((p) => (
@@ -67,7 +67,7 @@ export default async function PayrollMonthPage({
                 <th scope="col" className="px-4 py-2 text-right">Normaltid</th>
                 <th scope="col" className="px-4 py-2 text-right">Helg</th>
                 <th scope="col" className="px-4 py-2 text-right">Sjuk</th>
-                <th scope="col" className="px-4 py-2 text-right">varav arbetsledning</th>
+                <th scope="col" className="px-4 py-2 text-right">Förtroendetid</th>
               </tr>
             </thead>
             <tbody>
@@ -79,7 +79,7 @@ export default async function PayrollMonthPage({
                   <Num minutes={d.normalMinutes} />
                   <Num minutes={d.weekendMinutes} />
                   <Num minutes={d.sickMinutes} />
-                  <Num minutes={d.supervisionMinutes} />
+                  <Num minutes={d.trustMinutes} />
                 </tr>
               ))}
             </tbody>
@@ -89,7 +89,7 @@ export default async function PayrollMonthPage({
                 <Num minutes={p.total.normalMinutes} always />
                 <Num minutes={p.total.weekendMinutes} always />
                 <Num minutes={p.total.sickMinutes} always />
-                <Num minutes={p.total.supervisionMinutes} always />
+                <Num minutes={p.total.trustMinutes} always />
               </tr>
             </tfoot>
           </table>

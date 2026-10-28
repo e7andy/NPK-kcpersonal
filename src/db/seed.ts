@@ -9,7 +9,7 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import * as schema from "./schema";
 import { addDays, addMonths, dateRange, firstDayOfMonth, monthOf, today } from "../lib/dates";
-import { swedishPublicHolidays } from "../lib/holidays";
+import { defaultHolidays } from "../lib/holidays";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const db = drizzle(pool, { schema });
@@ -72,7 +72,7 @@ async function main() {
     const year = Number(today().slice(0, 4));
     await tx
       .insert(schema.holidays)
-      .values([...swedishPublicHolidays(year), ...swedishPublicHolidays(year + 1)]);
+      .values([...defaultHolidays(year), ...defaultHolidays(year + 1)]);
 
     // Shifts from the start of last month until four weeks from today.
     const planner = users.find((u) => u.roles.includes("planner"))!;
@@ -107,7 +107,7 @@ async function main() {
             startTime: t.endTime,
             endTime: end,
             lunchMinutes: 0,
-            type: "supervision",
+            type: "trust",
             note: "Arbetsledning",
             createdBy: planner.id,
             updatedBy: planner.id,
@@ -118,7 +118,7 @@ async function main() {
 
     // One sick shift with a replacement, a few days back.
     const sickDate = addDays(today(), -3);
-    const sick = shiftRows.find((s) => s.date === sickDate && s.type !== "supervision");
+    const sick = shiftRows.find((s) => s.date === sickDate && s.type !== "trust");
     if (sick) {
       sick.status = "sick";
       const busy = new Set(shiftRows.filter((s) => s.date === sickDate).map((s) => s.userId));

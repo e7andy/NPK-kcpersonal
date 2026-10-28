@@ -5,7 +5,13 @@
  * end and lunch. All functions here are pure so they can be unit tested.
  */
 
-export type ShiftType = "regular" | "supervision";
+/**
+ * "regular": normal working time.
+ * "trust": förtroendetid – extra time outside normal working hours, such as
+ * supervision or offboarding. Reported separately and never part of normal
+ * or weekend time.
+ */
+export type ShiftType = "regular" | "trust";
 export type ShiftStatus = "planned" | "sick";
 
 export interface ShiftTimes {
@@ -20,14 +26,14 @@ export interface ShiftForCalc extends ShiftTimes {
 }
 
 export interface DaySummary {
-  /** Worked minutes (planned shifts, regular and supervision). */
+  /** Worked minutes on planned regular shifts. */
   normalMinutes: number;
   /** Equal to normalMinutes on weekends and public holidays, otherwise 0. */
   weekendMinutes: number;
-  /** Planned minutes on shifts marked sick. */
+  /** Planned minutes on regular shifts marked sick. */
   sickMinutes: number;
-  /** Part of normalMinutes that comes from supervision shifts. */
-  supervisionMinutes: number;
+  /** Minutes on planned trust-time shifts (förtroendetid). */
+  trustMinutes: number;
 }
 
 const TIME_RE = /^([01]\d|2[0-3]):([0-5]\d)(:00)?$/;
@@ -82,21 +88,23 @@ export function overlaps(a: ShiftTimes, b: ShiftTimes): boolean {
 export function summarizeDay(shifts: ShiftForCalc[], isWeekend: boolean): DaySummary {
   let normalMinutes = 0;
   let sickMinutes = 0;
-  let supervisionMinutes = 0;
+  let trustMinutes = 0;
   for (const shift of shifts) {
     const minutes = paidMinutes(shift);
-    if (shift.status === "sick") {
+    if (shift.type === "trust") {
+      // Trust time that is not worked (marked sick) gives no time at all.
+      if (shift.status === "planned") trustMinutes += minutes;
+    } else if (shift.status === "sick") {
       sickMinutes += minutes;
-      continue;
+    } else {
+      normalMinutes += minutes;
     }
-    normalMinutes += minutes;
-    if (shift.type === "supervision") supervisionMinutes += minutes;
   }
   return {
     normalMinutes,
     weekendMinutes: isWeekend ? normalMinutes : 0,
     sickMinutes,
-    supervisionMinutes,
+    trustMinutes,
   };
 }
 
@@ -105,7 +113,7 @@ export function addSummaries(a: DaySummary, b: DaySummary): DaySummary {
     normalMinutes: a.normalMinutes + b.normalMinutes,
     weekendMinutes: a.weekendMinutes + b.weekendMinutes,
     sickMinutes: a.sickMinutes + b.sickMinutes,
-    supervisionMinutes: a.supervisionMinutes + b.supervisionMinutes,
+    trustMinutes: a.trustMinutes + b.trustMinutes,
   };
 }
 
@@ -113,7 +121,7 @@ export const EMPTY_SUMMARY: DaySummary = {
   normalMinutes: 0,
   weekendMinutes: 0,
   sickMinutes: 0,
-  supervisionMinutes: 0,
+  trustMinutes: 0,
 };
 
 /** Hours with two decimals, as a number (minutes / 60). */

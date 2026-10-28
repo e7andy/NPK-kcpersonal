@@ -10,7 +10,7 @@ import {
   startOfWeek,
   today,
 } from "./dates";
-import { easterSunday, swedishPublicHolidays } from "./holidays";
+import { easterSunday, defaultHolidays } from "./holidays";
 
 describe("dates", () => {
   it("validates date strings", () => {
@@ -54,16 +54,18 @@ describe("Swedish public holidays", () => {
   });
 
   it("computes the moving holidays for 2027", () => {
-    const byName = Object.fromEntries(swedishPublicHolidays(2027).map((h) => [h.name, h.date]));
+    const byName = Object.fromEntries(defaultHolidays(2027).map((h) => [h.name, h.date]));
     expect(byName["Långfredagen"]).toBe("2027-03-26");
     expect(byName["Kristi himmelsfärdsdag"]).toBe("2027-05-06");
+    expect(byName["Midsommarafton"]).toBe("2027-06-25");
     expect(byName["Midsommardagen"]).toBe("2027-06-26");
     expect(byName["Alla helgons dag"]).toBe("2027-11-06");
   });
 
-  it("returns 13 holidays sorted by date", () => {
-    const list = swedishPublicHolidays(2026);
-    expect(list).toHaveLength(13);
+  it("returns 14 days sorted by date", () => {
+    const list = defaultHolidays(2026);
+    expect(list).toHaveLength(14);
+    expect(list.find((h) => h.name === "Midsommarafton")?.date).toBe("2026-06-19");
     expect([...list].sort((a, b) => a.date.localeCompare(b.date))).toEqual(list);
   });
 });

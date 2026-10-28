@@ -17,7 +17,9 @@ En användare kan ha flera roller.
 
 Planerare och lönekörare är olika personer.
 
-**Arbetsledare** är ingen egen roll. Det är en sommarjobbare med högre lön och några extra timmar för arbetsledning. De timmarna läggs in som pass av typen *arbetsledning* så att de syns separat i löneunderlaget. Lönenivån hanteras i Fortnox.
+**Arbetsledare** är ingen egen roll. Det är en sommarjobbare med högre lön och några extra timmar för arbetsledning. Lönenivån hanteras i Fortnox.
+
+**Förtroendetid** är tid helt utanför normal arbetstid, till exempel arbetsledning och offboarding. Den läggs in som pass av typen *förtroendetid* och redovisas separat i löneunderlaget.
 
 ## Funktionella krav
 
@@ -41,8 +43,8 @@ Planerare och lönekörare är olika personer.
 
 ### Lön
 - K13. Löneköraren ser arbetad tid per person och dag för godkända månader.
-- K14. Underlaget ska passa hur det rapporteras i Fortnox idag: antal timmar normal tid per dag, plus samma antal timmar en gång till om det är helg. Se [fortnox.md](fortnox.md).
-- K15. Sjuktimmar och arbetsledningstimmar redovisas separat.
+- K14. Underlaget ska passa hur det rapporteras i Fortnox idag: antal timmar normal tid per dag, plus samma antal timmar en gång till om det är helg eller helgdag (inklusive midsommarafton). Se [fortnox.md](fortnox.md).
+- K15. Sjuktimmar och förtroendetid redovisas separat. Förtroendetid ingår inte i normaltiden.
 
 ### Sommarjobbare
 - K16. Ser sina pass i mobilen, i första hand kommande pass.
@@ -65,3 +67,5 @@ Planerare och lönekörare är olika personer.
 - Insamling av känsliga personuppgifter (personnummer, adress, anhörig, bankuppgifter, skatt). Görs via Google Forms och manuellt i Fortnox.
 - In- och utstämpling.
 - Lönenivåer och lönesättning.
+- Koppling till Fortnox. Underlaget exporteras och förs in manuellt.
+- Notiser till sommarjobbarna (i första versionen).

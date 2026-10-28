@@ -29,7 +29,8 @@ export default async function HolidaysPage({
         <Link className="btn btn-quiet px-3" href={`/admin/holidays?year=${year + 1}`} aria-label="Nästa år">›</Link>
       </div>
       <p className="text-ink-soft">
-        Lördagar och söndagar räknas alltid som helg. Här läggs röda dagar och andra dagar som ska ge helgtimmar.
+        Lördagar och söndagar räknas alltid som helg. Här läggs röda dagar, midsommarafton och andra dagar som ska
+        ge helgtimmar.
       </p>
       <Flash error={sp.error} ok={sp.ok} />
 
@@ -37,7 +38,7 @@ export default async function HolidaysPage({
         <form action={addPublicHolidays} className="panel flex flex-wrap items-center gap-3 p-4">
           <input type="hidden" name="year" value={year} />
           <span className="mr-auto">Inga helgdagar inlagda för {year}.</span>
-          <button className="btn" type="submit">Lägg till röda dagar för {year}</button>
+          <button className="btn" type="submit">Lägg till helgdagar för {year}</button>
         </form>
       ) : (
         <ul className="panel divide-y divide-line">
@@ -54,6 +55,14 @@ export default async function HolidaysPage({
             </li>
           ))}
         </ul>
+      )}
+
+      {rows.length > 0 && (
+        <form action={addPublicHolidays} className="flex flex-wrap items-center gap-3 text-sm">
+          <input type="hidden" name="year" value={year} />
+          <span className="text-ink-soft">Röda dagar och midsommarafton som saknas kan läggas till igen.</span>
+          <button className="font-bold text-lake" type="submit">Lägg till saknade helgdagar</button>
+        </form>
       )}
 
       <form action={addHoliday} className="panel grid gap-3 p-4 sm:grid-cols-[1fr_2fr_auto] sm:items-end">

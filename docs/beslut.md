@@ -9,16 +9,16 @@
 | 2026-10-28 | Planeraren godkänner månaden innan löneköraren ser den. Godkänd månad är låst. |
 | 2026-10-28 | Lunch anges per pass. Standardpass har en standardlunch som kan justeras. |
 | 2026-10-28 | Vid sjukdom markeras passet som sjuk och en ersättare sätts oftast in. |
-| 2026-10-28 | Arbetsledare är ingen egen roll, utan arbetsledningstimmar läggs som en egen passtyp. |
+| 2026-10-28 | Arbetsledare är ingen egen roll. Arbetsledningstimmar läggs som förtroendetid, se nedan. |
 | 2026-10-28 | Löneunderlaget följer dagens rutin i Fortnox: normaltid per dag, plus samma timmar igen om det är helg. |
-| 2026-10-28 | Första versionen exporterar underlag. Fortnox API-koppling görs senare (kräver licensen Integration). |
+| 2026-10-28 | Ingen koppling till Fortnox. Löneunderlaget exporteras och förs in manuellt. |
 | 2026-10-28 | Stack: Next.js och PostgreSQL. Körs på egen server. |
 | 2026-10-28 | Inloggning med länk via e-post (Better Auth). Ingen tvåfaktor i första versionen. |
 | 2026-10-28 | Känsliga personuppgifter (personnummer, adress, anhörig, bankuppgifter, skatt) hanteras **inte** i tjänsten. De samlas fortsatt in via Google Forms och matas in manuellt i Fortnox. |
 | 2026-10-28 | All kod, alla identifierare, kommentarer och commit-meddelanden är på engelska. Gränssnitt och dokumentation är på svenska. Sökvägar i webbadresser är på engelska (`/shifts`, `/planning`, `/payroll`). |
 | 2026-10-28 | Prototyp byggd med Drizzle ORM, Tailwind CSS och Better Auth. |
 | 2026-10-28 | Inloggningslänken gäller i 15 minuter. Sessionen gäller i 120 dagar för sommarjobbare och 14 dagar för planerare, lön och admin. |
-| 2026-10-28 | Röda dagar fylls i automatiskt per år från en beräkning av svenska helgdagar. Aftnar läggs till manuellt av admin om de ska ge helgtimmar. |
+| 2026-10-28 | Helgdagar fylls i automatiskt per år: svenska röda dagar plus midsommarafton. Andra dagar kan läggas till av admin. |
 | 2026-10-28 | Innevarande månad kan godkännas, men inte kommande månader. Godkänd månad låser alla pass i månaden. |
 | 2026-10-28 | Vid kopiering av vecka kopieras inte sjukmarkerade pass och ersättarpass. Pass som skulle överlappa eller hamna i låst månad hoppas över. |
 | 2026-10-28 | CSV-exporten använder semikolon, decimalkomma och UTF-8 med BOM så att den öppnas rätt i svensk Excel. |
@@ -27,11 +27,11 @@
 | 2026-10-28 | Inloggningsmejl skickas via serverns egen Postfix på `localhost`, från en adress på npk.nu. |
 | 2026-10-28 | Appen lyssnar på en unix-socket i stället för en TCP-port. På en server med flera kunder kan andra användare nå och kapa loopback-portar, men inte en socket i en katalog som bara appen och Apache kommer in i. Det kräver en egen startfil (`server.mjs`) eftersom `next start` bara stöder portar. |
 | 2026-10-28 | Appen körs som Virtualmin-användaren `npk.nu` från `/home/npk.nu/domains/kcpersonal.npk.nu/app`. |
+| 2026-10-28 | Midsommarafton räknas som helgdag och ger helgtimmar, även om centralen brukar ha stängt då. |
+| 2026-10-28 | Exportformatet (CSV och Excel) är godkänt. |
+| 2026-10-28 | Förtroendetid är en egen passtyp för tid helt utanför normal arbetstid, till exempel arbetsledning och offboarding. Den ingår inte i normaltiden, ger inga helgtimmar och redovisas i en egen kolumn. Ett pass med förtroendetid som markeras sjuk ger ingen tid. |
+| 2026-10-28 | Inga notiser till sommarjobbarna i första versionen. |
 
 ## Öppna frågor
 
-1. **Vad räknas som helg?** Prototypen räknar lördag, söndag och röda dagar. Räknas även midsommarafton och andra aftnar som helg? De kan i så fall läggas till under Helgdagar.
-2. **Orsakskoder i Fortnox** för normal tid, helgtillägg och sjukdom. Behövs för API-kopplingen.
-3. **Exportformat:** stämmer föreslaget format med hur löneköraren arbetar i Fortnox?
-4. **Arbetsledningstimmar:** ska de rapporteras på egen orsakskod i Fortnox, eller räcker det att de ingår i normaltiden?
-5. **Notiser:** ska sommarjobbare få mejl när deras pass ändras redan i första versionen?
+Inga just nu.
