@@ -1,5 +1,5 @@
 {
-  "id": "9378fbea-fab9-4c03-9a29-31e2d137024a",
+  "id": "2362e582-c010-43db-b971-3707e5a78628",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -699,7 +699,7 @@
         },
         "shifts_type_valid": {
           "name": "shifts_type_valid",
-          "value": "\"shifts\".\"type\" in ('regular', 'supervision')"
+          "value": "\"shifts\".\"type\" in ('regular', 'trust')"
         },
         "shifts_status_valid": {
           "name": "shifts_status_valid",

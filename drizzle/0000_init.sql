@@ -81,7 +81,7 @@ CREATE TABLE "shifts" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "shifts_end_after_start" CHECK ("shifts"."end_time" > "shifts"."start_time"),
 	CONSTRAINT "shifts_lunch_non_negative" CHECK ("shifts"."lunch_minutes" >= 0),
-	CONSTRAINT "shifts_type_valid" CHECK ("shifts"."type" in ('regular', 'supervision')),
+	CONSTRAINT "shifts_type_valid" CHECK ("shifts"."type" in ('regular', 'trust')),
 	CONSTRAINT "shifts_status_valid" CHECK ("shifts"."status" in ('planned', 'sick'))
 );
 --> statement-breakpoint
