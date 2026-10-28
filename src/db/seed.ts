@@ -119,23 +119,36 @@ async function main() {
     // One sick shift with a replacement, a few days back.
     const sickDate = addDays(today(), -3);
     const sick = shiftRows.find((s) => s.date === sickDate && s.type !== "trust");
+    const history: (typeof schema.auditLog.$inferInsert)[] = [];
     if (sick) {
+      // Example history for the sick shift, as the planner would create it.
+      const at = (daysAgo: number, hour: number) =>
+        new Date(`${addDays(today(), -daysAgo)}T${String(hour).padStart(2, "0")}:00:00+01:00`);
+      const original = { startTime: sick.startTime, endTime: sick.endTime, lunchMinutes: sick.lunchMinutes };
+      history.push(
+        { entity: "shift", entityId: sick.id!, action: "create", after: { ...original, lunchMinutes: 0 }, userId: planner.id, createdAt: at(20, 10) },
+        { entity: "shift", entityId: sick.id!, action: "update", after: original, userId: planner.id, createdAt: at(10, 14) },
+        { entity: "shift", entityId: sick.id!, action: "sick", before: { status: "planned" }, after: { status: "sick" }, userId: planner.id, createdAt: at(3, 7) },
+      );
       sick.status = "sick";
       const busy = new Set(shiftRows.filter((s) => s.date === sickDate).map((s) => s.userId));
       const replacement = workers.find((w) => !busy.has(w.id));
       if (replacement) {
+        const replacementId = randomUUID();
         shiftRows.push({
           ...sick,
-          id: randomUUID(),
+          id: replacementId,
           userId: replacement.id,
           status: "planned",
           replacesShiftId: sick.id,
           note: "Ersättare",
         });
+        history.push({ entity: "shift", entityId: replacementId, action: "replace", after: original, userId: planner.id, createdAt: at(3, 7) });
       }
     }
 
     await tx.insert(schema.shifts).values(shiftRows);
+    if (history.length) await tx.insert(schema.auditLog).values(history);
 
     // Last month is approved so the payroll view has data.
     await tx.insert(schema.monthApprovals).values({

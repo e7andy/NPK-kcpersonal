@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Flash } from "@/components/flash";
 import { MonthPicker } from "@/components/month-picker";
 import { ShiftTags } from "@/components/shift-tags";
-import { dayMonth, firstDayOfMonth, isMonthString, lastDayOfMonth, monthLabel, monthOf, today, weekdayShort, upperFirst } from "@/lib/dates";
+import { dayMonthShort, firstDayOfMonth, isMonthString, lastDayOfMonth, monthLabel, monthOf, today, weekdayShort, upperFirst } from "@/lib/dates";
 import { buildPayroll, getMonthStatus, getShifts } from "@/lib/schedule";
 import { requireRole } from "@/lib/session";
 import { formatHours, shortTime } from "@/lib/time";
@@ -81,8 +81,8 @@ export default async function ReconcilePage({
                 <ul className="divide-y divide-line border-t border-line">
                   {own.map((s) => (
                     <li key={s.id} className="flex flex-wrap items-center gap-3 px-4 py-2 text-sm">
-                      <span className="w-24">
-                        {upperFirst(weekdayShort(s.date))} {dayMonth(s.date)}
+                      <span className="w-20 whitespace-nowrap">
+                        {upperFirst(weekdayShort(s.date))} {dayMonthShort(s.date)}
                       </span>
                       <Link
                         href={`/planning/shifts/${s.id}`}

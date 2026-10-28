@@ -9,6 +9,49 @@ Internt verktyg för kanotcentralen (kc) för att planera sommarjobbarnas arbets
 - **Lönekörare** ser godkända månader med arbetad tid per person och dag, med lunch avdragen och helgtimmar och förtroendetid uppdelade, och exporterar underlag som förs in manuellt i Fortnox.
 - **Admin** hanterar personal, standardpass och helgdagar.
 
+## Skärmbilder
+
+Bilderna visar påhittad demodata.
+
+### Sommarjobbare (mobil)
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/images/worker-shifts.png" alt="Mina pass: nästa pass överst och kommande pass per vecka"></td>
+    <td width="50%"><img src="docs/images/worker-day.png" alt="Vem jobbar: alla pass en dag, med sjuk och ersättare markerade"></td>
+  </tr>
+  <tr>
+    <td>Nästa pass överst och kommande pass per vecka.</td>
+    <td>Vem som jobbar en dag, här med en sjukanmälan och en ersättare.</td>
+  </tr>
+</table>
+
+### Planerare
+
+![Veckoschema med personer på rader och dagar på kolumner](docs/images/planner-week.png)
+
+Veckoschemat. Välj ett standardpass direkt i en tom ruta eller lägg en egen tid. Helger och röda dagar är gulmarkerade, sjuka pass röda och förtroendetid grön.
+
+![Ett sjukmarkerat pass med ersättare och historik](docs/images/planner-sick.png)
+
+Ett pass som markerats som sjukt, med ersättare och ändringshistorik.
+
+![Månadsavstämning med summor per person](docs/images/planner-reconcile.png)
+
+Månadsavstämningen med summor per person. Här rättas avvikelser och månaden godkänns.
+
+### Lön
+
+![Löneunderlag för en godkänd månad](docs/images/payroll-month.png)
+
+Löneunderlaget för en godkänd månad, med export till Excel och CSV.
+
+### Admin
+
+![Standardpass](docs/images/admin-templates.png)
+
+Standardpassen som planeraren väljer bland.
+
 ## Vad tjänsten inte gör
 
 - Den samlar **inte** in känsliga personuppgifter (personnummer, bankuppgifter, adress, anhörig, skatt). Det görs fortsatt via Google Forms och matas in manuellt i Fortnox.
