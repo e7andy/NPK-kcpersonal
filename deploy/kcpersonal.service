@@ -1,0 +1,45 @@
+# systemd unit for kcpersonal.
+#
+# Install as root:
+#   cp deploy/kcpersonal.service /etc/systemd/system/
+#   systemctl daemon-reload && systemctl enable --now kcpersonal
+#
+# Adjust User, Group and the paths below if the Virtualmin user for npk.nu
+# is not "npk". See docs/drift.md.
+
+[Unit]
+Description=kcpersonal – schedules for kanotcentralen
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=npk
+Group=npk
+WorkingDirectory=/home/npk/domains/kcpersonal.npk.nu/app
+Environment=NODE_ENV=production
+Environment=TZ=Europe/Stockholm
+Environment=PORT=3010
+# Listen on loopback only; Apache is the public entry point.
+ExecStart=/usr/bin/node node_modules/next/dist/bin/next start -H 127.0.0.1 -p 3010
+Restart=on-failure
+RestartSec=5
+
+# Resource limits
+MemoryMax=512M
+
+# Hardening: the app only needs to write to its own .next cache.
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/npk/domains/kcpersonal.npk.nu/app/.next
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target

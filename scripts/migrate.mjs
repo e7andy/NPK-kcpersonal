@@ -1,5 +1,5 @@
-// Applies SQL migrations in ./drizzle. Plain JS so it runs in the production
-// image without TypeScript tooling.
+// Applies SQL migrations in ./drizzle. Plain JS so it runs on the server
+// without TypeScript tooling.
 import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import pg from "pg";

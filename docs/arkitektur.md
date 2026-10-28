@@ -13,7 +13,7 @@
 | Mobil | PWA-manifest och ikon så att sidan kan läggas på hemskärmen |
 | Export | CSV (semikolon, decimalkomma) och Excel via `exceljs` |
 | Tester | Vitest för beräkningsregler, datum och export |
-| Drift | Docker Compose på egen VPS bakom befintlig reverse proxy |
+| Drift | Systemd-tjänst bakom Apache på egen VPS (Virtualmin), se [drift.md](drift.md) |
 
 All kod, alla identifierare och kommentarer är på engelska. Gränssnittet och dokumentationen är på svenska.
 
@@ -24,7 +24,7 @@ All kod, alla identifierare och kommentarer är på engelska. Gränssnittet och 
 - Sessionen gäller i 120 dagar för sommarjobbare.
 - För planerare, lön och admin krävs ny inloggning efter 14 dagar (`src/lib/session.ts`).
 - Ändrad e-post, ändrade roller eller inaktivering loggar ut personen överallt.
-- Utan `SMTP_HOST` i utvecklingsläge skrivs länken till serverloggen. I produktion krävs SMTP.
+- Utan `SMTP_HOST` i utvecklingsläge skrivs länken till serverloggen. I produktion krävs SMTP. Mejl skickas via serverns egen Postfix på `localhost`.
 - Ingen tvåfaktorsinloggning, eftersom inga känsliga personuppgifter lagras. Better Auth har ett TOTP-plugin om det behövs senare.
 
 ## Behörighet
@@ -82,13 +82,20 @@ src/
     mail.ts                utskick av inloggningslänk
 drizzle/                   SQL-migreringar
 scripts/
-  migrate.mjs              kör migreringar (även i Docker)
+  migrate.mjs              kör migreringar
   create-admin.mjs         skapar första admin
+  deploy.sh                uppdaterar på servern
+deploy/
+  kcpersonal.service       systemd-tjänst
+  apache-proxy.conf        Apache-direktiv för vhosten
 ```
 
 ## Drift
 
-- `docker-compose.yml` med app och PostgreSQL. Appen lyssnar bara på `127.0.0.1:3000` och nås via reverse proxy med HTTPS.
-- Migreringar körs automatiskt när containern startar.
-- Miljövariabler enligt `.env.example`.
-- Nattlig `pg_dump` till backup, se README.
+Se [drift.md](drift.md). I korthet:
+
+- Sub-server `kcpersonal.npk.nu` under npk.nu i Virtualmin.
+- Node.js körs som systemd-tjänst (`deploy/kcpersonal.service`) under Virtualmin-användaren och lyssnar bara på `127.0.0.1:3010`.
+- Apache är proxy med HTTPS (`deploy/apache-proxy.conf`).
+- PostgreSQL-databasen hör till sub-servern och ingår i Virtualmins backup.
+- Uppdatering med `scripts/deploy.sh`.

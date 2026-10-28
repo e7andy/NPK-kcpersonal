@@ -22,6 +22,9 @@
 | 2026-10-28 | Innevarande månad kan godkännas, men inte kommande månader. Godkänd månad låser alla pass i månaden. |
 | 2026-10-28 | Vid kopiering av vecka kopieras inte sjukmarkerade pass och ersättarpass. Pass som skulle överlappa eller hamna i låst månad hoppas över. |
 | 2026-10-28 | CSV-exporten använder semikolon, decimalkomma och UTF-8 med BOM så att den öppnas rätt i svensk Excel. |
+| 2026-10-28 | Ingen Docker. Servern delas av flera kunder som är isolerade via Virtualmin, och vanlig Docker kräver root-liknande rättigheter. Appen körs i stället som systemd-tjänst under Virtualmin-användaren bakom Apache. |
+| 2026-10-28 | Tjänsten nås på `kcpersonal.npk.nu`, en sub-server under npk.nu. Databasen är sub-serverns PostgreSQL-databas och ingår i Virtualmins backup. |
+| 2026-10-28 | Inloggningsmejl skickas via serverns egen Postfix på `localhost`, från en adress på npk.nu. |
 
 ## Öppna frågor
 
@@ -30,4 +33,3 @@
 3. **Exportformat:** stämmer föreslaget format med hur löneköraren arbetar i Fortnox?
 4. **Arbetsledningstimmar:** ska de rapporteras på egen orsakskod i Fortnox, eller räcker det att de ingår i normaltiden?
 5. **Notiser:** ska sommarjobbare få mejl när deras pass ändras redan i första versionen?
-6. **Domän:** var ska tjänsten nås?

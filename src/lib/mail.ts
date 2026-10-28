@@ -13,10 +13,18 @@ export async function sendSignInLink(to: string, url: string): Promise<void> {
     return;
   }
 
+  const host = process.env.SMTP_HOST;
+  const port = Number(process.env.SMTP_PORT || 587);
+  // The local mail server is reached over loopback, where its certificate
+  // (issued for the public host name) would not match "localhost". Skip
+  // STARTTLS there; traffic never leaves the machine.
+  const isLoopback = ["localhost", "127.0.0.1", "::1"].includes(host);
+
   const transport = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT ?? 587),
-    secure: Number(process.env.SMTP_PORT) === 465,
+    host,
+    port,
+    secure: port === 465,
+    ignoreTLS: isLoopback,
     auth: process.env.SMTP_USER
       ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASSWORD }
       : undefined,

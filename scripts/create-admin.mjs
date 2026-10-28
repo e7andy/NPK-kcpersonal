@@ -1,6 +1,5 @@
 // Creates the first admin user, or gives an existing user the admin role.
 // Usage: npm run create-admin -- you@example.com "Your Name"
-//    or: docker compose exec app node scripts/create-admin.mjs you@example.com "Your Name"
 import { randomUUID } from "node:crypto";
 import pg from "pg";
 

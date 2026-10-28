@@ -5,7 +5,8 @@ Etapp 1–5 utgör en första version att köra en säsong med.
 **Status 2026-10-28:** en prototyp som täcker etapp 1–5 är byggd. Den behöver provas av planerare och lönekörare innan säsongen, och de öppna frågorna i [beslut.md](beslut.md) behöver besvaras.
 
 ## Etapp 1: Grund
-- Next.js-projekt, PostgreSQL, Docker Compose.
+- Next.js-projekt och PostgreSQL.
+- Drift som systemd-tjänst bakom Apache på kcpersonal.npk.nu.
 - Databasschema och migreringar.
 - Better Auth med inloggningslänk via e-post.
 - Roller och behörighetskontroll.
