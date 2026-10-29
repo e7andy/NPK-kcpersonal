@@ -20,15 +20,15 @@ Webbläsare ──HTTPS──▶ Apache (kcpersonal.npk.nu, Virtualmin)
 
 Appen ligger i `/home/npk.nu/domains/kcpersonal.npk.nu/app`.
 
-## Engångsinstallation (som root)
+## Engångsinstallation (med sudo)
 
 ### 1. Node.js 22
 
 Kontrollera med `node -v`. Ubuntu 22.04 har bara Node 12 i sina egna paket, så installera Node 22 från NodeSource:
 
 ```sh
-curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
-apt install nodejs
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo bash -
+sudo apt install nodejs
 ```
 
 Systemd-tjänsten förutsätter att `node` finns i `/usr/bin/node`.
@@ -36,7 +36,7 @@ Systemd-tjänsten förutsätter att `node` finns i `/usr/bin/node`.
 ### 2. PostgreSQL
 
 ```sh
-apt install postgresql
+sudo apt install postgresql
 ```
 
 På Ubuntu 22.04 ger det PostgreSQL 14, vilket räcker.
@@ -46,8 +46,8 @@ Aktivera sedan PostgreSQL i Virtualmin under *System Settings → Features and P
 ### 3. Apache-moduler
 
 ```sh
-a2enmod proxy proxy_http headers
-systemctl reload apache2
+sudo a2enmod proxy proxy_http headers
+sudo systemctl reload apache2
 ```
 
 ## Sub-server och databas (Virtualmin)
@@ -104,13 +104,13 @@ npm run create-admin -- du@example.se "Ditt Namn"
 
 `npm run build` behöver kortvarigt 1–1,5 GB minne.
 
-## Systemd-tjänst (som root)
+## Systemd-tjänst (med sudo)
 
 ```sh
-cp /home/npk.nu/domains/kcpersonal.npk.nu/app/deploy/kcpersonal.service /etc/systemd/system/
-systemctl daemon-reload
-systemctl enable --now kcpersonal
-systemctl status kcpersonal
+sudo cp /home/npk.nu/domains/kcpersonal.npk.nu/app/deploy/kcpersonal.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now kcpersonal
+sudo systemctl status kcpersonal
 ```
 
 systemd varnar att `npk.nu` inte följer de strikta reglerna för användarnamn. Varningen är ofarlig.
@@ -123,14 +123,14 @@ Tjänsten gör följande:
 Låt användaren starta om tjänsten vid uppdatering, utan att få andra root-rättigheter:
 
 ```sh
-echo 'npk.nu ALL=(root) NOPASSWD: /usr/bin/systemctl restart kcpersonal' > /etc/sudoers.d/kcpersonal
-chmod 440 /etc/sudoers.d/kcpersonal
-visudo -c
+echo 'npk.nu ALL=(root) NOPASSWD: /usr/bin/systemctl restart kcpersonal' | sudo tee /etc/sudoers.d/kcpersonal
+sudo chmod 440 /etc/sudoers.d/kcpersonal
+sudo visudo -c
 ```
 
 ## Apache
 
-Lägg in innehållet i [`deploy/apache-proxy.conf`](../deploy/apache-proxy.conf) i sub-serverns HTTPS-vhost. I Virtualmin görs det under *Web Configuration → Configure SSL Website → Edit Directives*. Kör sedan `systemctl reload apache2`.
+Lägg in innehållet i [`deploy/apache-proxy.conf`](../deploy/apache-proxy.conf) i sub-serverns HTTPS-vhost. I Virtualmin görs det under *Web Configuration → Configure SSL Website → Edit Directives*. Kör sedan `sudo systemctl reload apache2`.
 
 - `ProxyPreserveHost On` krävs. Utan den avvisar Next.js formulären (server actions) eftersom värdnamnet inte stämmer.
 - Let's Encrypt-förnyelser undantas från proxyn.
@@ -156,9 +156,9 @@ Under bygget kan sidan svara med fel en kort stund.
 
 | Vad | Kommando |
 |---|---|
-| Appens logg | `journalctl -u kcpersonal -f` |
+| Appens logg | `sudo journalctl -u kcpersonal -f` |
 | Status | `systemctl status kcpersonal` |
-| Svarar appen? (som `npk.nu` eller root) | `curl -I --unix-socket /run/kcpersonal/kcpersonal.sock http://localhost/login` |
+| Svarar appen? | `sudo curl -I --unix-socket /run/kcpersonal/kcpersonal.sock http://localhost/login` |
 | Apache | `/var/log/virtualmin/kcpersonal.npk.nu_error_log` |
 
 Svarar Apache med 503 men appen svarar på socketen, kontrollera att `/run/kcpersonal` har gruppen `www-data` (`ls -ld /run/kcpersonal`).
@@ -169,7 +169,7 @@ Svarar Apache med 503 men appen svarar på socketen, kontrollera att `/run/kcper
 - Den lyssnar på socketen som anges i `SOCKET_PATH`. Utan `SOCKET_PATH` lyssnar den på `127.0.0.1:PORT`.
 - Den styr Next.js interna anrop till sig själv till samma socket. När ett formulär omdirigerar hämtar Next.js målsidan från sin egen server och skickar med besökarens cookies. Annars skulle Next.js anropa `127.0.0.1:3000`, där en annan kunds app kan lyssna.
 
-Det här bygger på en intern inställning i Next.js (`__NEXT_PRIVATE_ORIGIN`). Gör så här efter uppgradering av Next.js: skicka ett formulär, till exempel inloggningen, och kontrollera att `journalctl -u kcpersonal` inte visar `failed to get redirect response`.
+Det här bygger på en intern inställning i Next.js (`__NEXT_PRIVATE_ORIGIN`). Gör så här efter uppgradering av Next.js: skicka ett formulär, till exempel inloggningen, och kontrollera att `sudo journalctl -u kcpersonal` inte visar `failed to get redirect response`.
 
 ## Backup
 
