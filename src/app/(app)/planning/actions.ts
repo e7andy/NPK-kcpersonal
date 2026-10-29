@@ -106,12 +106,15 @@ export async function saveShift(formData: FormData) {
   const formPath = id ? `/planning/shifts/${id}` : `/planning/shifts/new?userId=${userId}&date=${date}`;
 
   if (!isDateString(date)) fail(formPath, "Ogiltigt datum.");
-  await assertWorker(userId, formPath);
   const timeError = validateShiftTimes({ startTime, endTime, lunchMinutes });
   if (timeError) fail(formPath, timeError);
 
   const existing = id ? await getShift(id) : null;
   if (id && !existing) fail("/planning", "Passet finns inte längre.");
+  // A shift can only be given to an active worker, but an existing shift can
+  // still be corrected after its person has become inactive (e.g. during the
+  // month reconciliation).
+  if (!existing || existing.userId !== userId) await assertWorker(userId, formPath);
   if (await isDateLocked(date)) fail(formPath, LOCKED_MESSAGE);
   if (existing && (await isDateLocked(existing.date))) fail(formPath, LOCKED_MESSAGE);
 
