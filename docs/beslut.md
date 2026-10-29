@@ -33,6 +33,7 @@
 | 2026-10-28 | Inga notiser till sommarjobbarna i första versionen. |
 | 2026-10-29 | Personallistan visar bara aktiva personer. Inaktiva visas på en egen lista och kan aktiveras igen. |
 | 2026-10-29 | Inaktiva personers kommande pass ligger kvar men ger varningar till admin och planerare, eftersom de inte syns i schemat men räknas i löneunderlaget. Tidigare pass är historik och ger ingen varning. |
+| 2026-10-29 | Säkerhetsgenomgång: begränsning av inloggningsförsök (3 per adress, 10 per IP-adress, 15 minuter), bara nödvändiga Better Auth-adresser öppna, säkerhetsrubriker, skydd mot omdirigering till andra webbplatser, skydd mot formler i CSV-exporten, och IP-adress från Apache som betrodd proxy. Se `docs/arkitektur.md`. |
 | 2026-10-29 | Ett befintligt pass kan rättas, sjukmarkeras eller tas bort även om personen har blivit inaktiv, till exempel vid månadsavstämningen. Nya pass, flyttade pass och ersättare kan bara ges till aktiva sommarjobbare. |
 | 2026-10-29 | Radera tar bort personen och alla pass, även i godkända månader, så att gamla löneunderlag ändras. Ändringshistorik med personens uppgifter och pass tas också bort. Kvar finns bara en rad om att en radering gjorts, utan personuppgifter. Där personen står som den som skapat, ändrat eller godkänt något töms fältet. Ersättarpass för andra finns kvar men förlorar kopplingen. |
 

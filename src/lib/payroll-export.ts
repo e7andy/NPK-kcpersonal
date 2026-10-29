@@ -55,7 +55,11 @@ export function payrollRows(people: PayrollPerson[]): { row: Row; isTotal: boole
 
 /** Semicolon-separated CSV with decimal comma and BOM, which Swedish Excel opens correctly. */
 export function toCsv(people: PayrollPerson[]): string {
-  const escape = (v: string) => (/[;"\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
+  const escape = (v: string) => {
+    // A leading = + - @ (or tab/CR) makes Excel treat the cell as a formula.
+    const safe = /^[=+\-@\t\r]/.test(v) ? `'${v}` : v;
+    return /[;"\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
+  };
   const lines = [EXPORT_COLUMNS.join(";")];
   for (const { row } of payrollRows(people)) {
     const [a, b, c, d, ...minutes] = row;

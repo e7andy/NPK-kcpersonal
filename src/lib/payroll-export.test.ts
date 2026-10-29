@@ -29,4 +29,13 @@ describe("payroll export", () => {
     expect(lines[2]).toBe("101;Test Testsson;2027-07-03;lör;7,50;7,50;0,00;1,00");
     expect(lines[3]).toBe("101;Test Testsson;Summa;;13,00;7,50;0,00;1,00");
   });
+
+  it("neutralises names that Excel would run as formulas", () => {
+    const csv = toCsv([{ ...person, name: '=HYPERLINK("http://evil.example";"x")' }]);
+    const line = csv.trim().split("\r\n")[1];
+    expect(line.startsWith(`101;"'=HYPERLINK(""http://evil.example"";""x"")"`)).toBe(true);
+    for (const prefix of ["+", "-", "@"]) {
+      expect(toCsv([{ ...person, name: `${prefix}1` }]).split("\r\n")[1].split(";")[1]).toBe(`'${prefix}1`);
+    }
+  });
 });

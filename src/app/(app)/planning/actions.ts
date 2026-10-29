@@ -9,6 +9,7 @@ import { shifts, shiftTemplates, user as userTable } from "@/db/schema";
 import { writeAudit } from "@/lib/audit";
 import { addDays, isDateString, monthOf, startOfWeek } from "@/lib/dates";
 import { findOverlap, getLockedMonths, getShift, getShifts, isDateLocked } from "@/lib/schedule";
+import { safeReturnPath } from "@/lib/redirect";
 import { requireRole } from "@/lib/session";
 import { overlaps, validateShiftTimes } from "@/lib/time";
 
@@ -16,11 +17,6 @@ const LOCKED_MESSAGE = "Månaden är godkänd och låst. Löneköraren kan låsa
 
 function str(formData: FormData, key: string): string {
   return String(formData.get(key) ?? "").trim();
-}
-
-/** Only allow redirects back into the app. */
-function safeReturn(path: string, fallback: string): string {
-  return path.startsWith("/") && !path.startsWith("//") ? path : fallback;
 }
 
 function withParam(path: string, key: string, value: string): string {
@@ -61,7 +57,7 @@ export async function quickAddShift(formData: FormData) {
   const userId = str(formData, "userId");
   const date = str(formData, "date");
   const templateId = str(formData, "templateId");
-  const back = safeReturn(str(formData, "returnTo"), `/planning?week=${startOfWeek(date)}`);
+  const back = safeReturnPath(str(formData, "returnTo"), `/planning?week=${startOfWeek(date)}`);
 
   if (!isDateString(date)) fail(back, "Ogiltigt datum.");
   await assertWorker(userId, back);

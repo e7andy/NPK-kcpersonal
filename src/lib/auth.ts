@@ -25,6 +25,11 @@ export const auth = betterAuth({
   // Long sessions so summer workers rarely need to sign in again. Planner,
   // payroll and admin get a shorter limit enforced in lib/session.ts.
   session: { expiresIn: 120 * DAY, updateAge: DAY },
+  advanced: {
+    // Behind Apache the client address is the rightmost X-Forwarded-For entry.
+    // Trusting only the local hop keeps clients from spoofing it.
+    ipAddress: { trustedProxies: ["127.0.0.1", "::1"] },
+  },
   plugins: [
     magicLink({
       disableSignUp: true,

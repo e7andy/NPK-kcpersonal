@@ -5,6 +5,7 @@ import { requestSignInLink } from "./actions";
 const ERRORS: Record<string, string> = {
   email: "Skriv en giltig e-postadress.",
   send: "Länken kunde inte skickas. Försök igen om en stund.",
+  limit: "För många försök. Vänta en kvart och försök igen.",
   link: "Länken har gått ut eller redan använts. Be om en ny.",
   INVALID_TOKEN: "Länken har gått ut eller redan använts. Be om en ny.",
   EXPIRED_TOKEN: "Länken har gått ut. Be om en ny.",

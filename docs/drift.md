@@ -135,6 +135,8 @@ Lägg in innehållet i [`deploy/apache-proxy.conf`](../deploy/apache-proxy.conf)
 - `ProxyPreserveHost On` krävs. Utan den avvisar Next.js formulären (server actions) eftersom värdnamnet inte stämmer.
 - Let's Encrypt-förnyelser undantas från proxyn.
 
+Ligger npk.nu bakom Cloudflares proxy (orange moln) ser Apache Cloudflares adresser i stället för besökarnas. Då delar alla besökare via samma Cloudflare-nod på gränsen för inloggningsförsök. Aktivera i så fall `mod_remoteip` med Cloudflares adressintervall, eller låt DNS-posten för `kcpersonal.npk.nu` gå direkt till servern (grått moln).
+
 Öppna https://kcpersonal.npk.nu och logga in med admin-adressen. Under *Helgdagar* lägger du till årets röda dagar. Sedan lägger du in standardpass och personal.
 
 ## Uppdatera

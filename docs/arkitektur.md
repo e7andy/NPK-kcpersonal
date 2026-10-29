@@ -43,6 +43,18 @@ Kontrolleras på serversidan i varje sida, server action och route med `requireR
 
 En person kan ha flera roller.
 
+## Säkerhet
+
+Utöver inloggningen och behörighetskontrollerna ovan:
+
+- **Begränsning av inloggningsförsök:** formuläret skickar högst 3 länkar per e-postadress och tar emot högst 10 försök per IP-adress på 15 minuter (`src/lib/rate-limit.ts`). Gränsen gäller oavsett om adressen finns, så den avslöjar inget om vilka konton som finns. Räknarna ligger i minnet och nollställs när tjänsten startas om.
+- **Klientens IP-adress:** bakom Apache är det den sista posten i `X-Forwarded-For` (`src/lib/client-ip.ts`). Better Auth är inställt på samma sätt. Posterna före den kommer från klienten och kan förfalskas.
+- **Better Auths adresser:** bara de adresser som används är öppna (`src/app/api/auth/[...all]/route.ts`): verifiering av inloggningslänken, sessionskontroll och utloggning. Allt annat, till exempel `/update-user`, svarar 404. Ändringar av personer görs bara via admin-sidorna.
+- **Säkerhetsrubriker** (`next.config.ts`): sidorna får inte bäddas in på andra webbplatser, HSTS är påslaget och `X-Powered-By` är borttagen.
+- **Omdirigeringar** efter formulär tillåter bara sökvägar inom tjänsten (`src/lib/redirect.ts`).
+- **CSV-exporten** sätter en apostrof före fält som börjar med `=`, `+`, `-` eller `@`, så att Excel inte kör dem som formler.
+- **Formulär** skyddas mot förfalskning av Next.js kontroll av `Origin`. Det kräver `ProxyPreserveHost On` i Apache.
+
 ## Sidor
 
 | Sökväg | Roll | Innehåll |
