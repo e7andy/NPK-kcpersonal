@@ -152,6 +152,51 @@ Skriptet gör följande:
 
 Under bygget kan sidan svara med fel en kort stund.
 
+## Rensa databasen
+
+Till exempel för att ta bort testdata innan säsongen. Det går inte att ångra, så ta en backup först om något kan behöva sparas.
+
+Öppna databasen som `npk.nu` med uppgifterna från `.env`:
+
+```sh
+sudo -u npk.nu -H bash
+cd ~/domains/kcpersonal.npk.nu/app
+set -a; . ./.env; set +a
+psql "$DATABASE_URL"
+```
+
+Välj ett av alternativen nedan i `psql` och avsluta med `\q`.
+
+### Alternativ 1: Rensa allt
+
+Tar bort personal, pass, godkända månader, ändringshistorik, inloggningar, standardpass och helgdagar.
+
+```sql
+TRUNCATE "user", session, account, verification, shifts, shift_templates,
+         month_approvals, holidays, audit_log RESTART IDENTITY CASCADE;
+```
+
+### Alternativ 2: Rensa allt utom standardpass och helgdagar
+
+Bra om standardpass och helgdagar redan är inlagda som de ska vara.
+
+```sql
+TRUNCATE "user", session, account, verification, shifts,
+         month_approvals, audit_log RESTART IDENTITY CASCADE;
+```
+
+### Efteråt
+
+Skapa en admin igen:
+
+```sh
+npm run create-admin -- du@example.se "Ditt Namn"
+```
+
+- Alla blir utloggade, eftersom inloggningarna också tas bort.
+- Har du rensat allt lägger du in helgdagarna igen under *Helgdagar* med *Lägg till helgdagar* för varje år, och standardpassen under *Standardpass*.
+- Migreringstabellen ligger i ett eget schema och påverkas inte, så `deploy.sh` fungerar som vanligt efteråt.
+
 ## Loggar och felsökning
 
 | Vad | Kommando |
