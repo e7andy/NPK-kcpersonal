@@ -60,7 +60,13 @@ systemctl reload apache2
 
 ## Installera appen (som användaren `npk.nu`)
 
-Byt till användaren med `su - npk.nu`.
+Virtualmin-användare har skalet `nologin`, så `su - npk.nu` fungerar inte. Låt det vara så och starta i stället ett skal som användaren med sudo:
+
+```sh
+sudo -u npk.nu -H bash
+```
+
+`-H` gör att `~` och npm-cachen hamnar i `/home/npk.nu`.
 
 Lägg appen **utanför** `public_html`, annars kan Apache servera `.env` och källkoden.
 
@@ -133,10 +139,8 @@ Lägg in innehållet i [`deploy/apache-proxy.conf`](../deploy/apache-proxy.conf)
 
 ## Uppdatera
 
-Som användaren `npk.nu`:
-
 ```sh
-~/domains/kcpersonal.npk.nu/app/scripts/deploy.sh
+sudo -u npk.nu -H /home/npk.nu/domains/kcpersonal.npk.nu/app/scripts/deploy.sh
 ```
 
 Skriptet gör följande:

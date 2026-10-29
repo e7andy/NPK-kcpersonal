@@ -101,7 +101,7 @@ Tjänsten körs på https://kcpersonal.npk.nu som en sub-server under npk.nu i V
 Hela installationen steg för steg finns i [docs/drift.md](docs/drift.md). Uppdatering görs med:
 
 ```sh
-~/domains/kcpersonal.npk.nu/app/scripts/deploy.sh
+sudo -u npk.nu -H /home/npk.nu/domains/kcpersonal.npk.nu/app/scripts/deploy.sh
 ```
 
 ## Dokumentation

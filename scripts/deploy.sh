@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Updates kcpersonal on the server to the latest commit on main.
-# Run as the site user (npk.nu): ~/domains/kcpersonal.npk.nu/app/scripts/deploy.sh
+# Run as the site user:
+#   sudo -u npk.nu -H /home/npk.nu/domains/kcpersonal.npk.nu/app/scripts/deploy.sh
 #
 # Requires a sudoers rule that lets the site user restart the service, see
 # docs/drift.md.
