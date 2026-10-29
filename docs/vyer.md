@@ -29,6 +29,7 @@ Sommarjobbare kan inte ändra pass. Ändringar görs av planeraren.
 - Summering per person och vecka.
 - Kopiera dag eller vecka till annat datum.
 - Helgdagar och helger markeras visuellt.
+- Inaktiva personer syns inte som rader. Har de kommande pass under veckan visas en varning med länkar till passen, så att planeraren kan ta bort eller flytta dem.
 
 **Sjukdom och ersättare**
 1. Planeraren öppnar passet och väljer *Sjuk*.
@@ -62,6 +63,7 @@ Sommarjobbare kan inte ändra pass. Ändringar görs av planeraren.
 
 - Användare: namn, e-post, telefon, roller, anställningsnummer i Fortnox, aktiv/inaktiv.
   - Listan visar bara aktiva personer. *Visa inaktiva* tar fram de inaktiva, som kan aktiveras igen när de kommer tillbaka.
+  - Har en inaktiv person kommande pass varnar tjänsten: när personen sparas som inaktiv, på personens sida och i listan över inaktiva, som visar antal kommande pass.
   - *Radera* tar bort personen permanent via en bekräftelsesida där personens namn måste skrivas in. Sidan visar hur många pass som försvinner och varnar om några ligger i godkända månader. Admin kan inte radera sig själv.
 - Standardpass: namn, start, slut, standardlunch, sortering, aktiv/inaktiv.
 - Helgdagar: datum och namn.

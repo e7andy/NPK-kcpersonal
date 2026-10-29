@@ -20,8 +20,9 @@ import {
   type Role,
 } from "@/db/schema";
 import { writeAudit } from "@/lib/audit";
-import { isDateString } from "@/lib/dates";
+import { isDateString, today } from "@/lib/dates";
 import { defaultHolidays } from "@/lib/holidays";
+import { getUpcomingShiftsOfInactive } from "@/lib/schedule";
 import { requireRole } from "@/lib/session";
 import { validateShiftTimes } from "@/lib/time";
 
@@ -106,6 +107,14 @@ export async function updateUser(formData: FormData) {
     });
   });
   revalidatePath("/admin/users");
+  revalidatePath("/planning");
+  if (!active) {
+    const upcoming = (await getUpcomingShiftsOfInactive(today())).find((r) => r.userId === id);
+    if (upcoming) {
+      const warn = `${u.name} har ${upcoming.count} kommande pass från ${upcoming.first}. Inaktiva syns inte i schemat, men passen räknas i löneunderlaget. Be planeraren ta bort eller flytta dem.`;
+      redirect(`/admin/users?show=inactive&ok=${encodeURIComponent("Ändringarna är sparade.")}&warn=${encodeURIComponent(warn)}`);
+    }
+  }
   back(active ? "/admin/users" : "/admin/users?show=inactive", "ok", "Ändringarna är sparade.");
 }
 

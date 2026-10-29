@@ -56,6 +56,12 @@ export default async function PlanningPage({
     label: `${t.name} ${shortTime(t.startTime)}–${shortTime(t.endTime)}`,
   }));
   const nowDate = today();
+  // Upcoming shifts of people who are not rows in the grid (inactive, or no
+  // longer workers). Past shifts are history and need no action.
+  const workerIds = new Set(workers.map((w) => w.id));
+  const hiddenShifts = shifts.filter(
+    (s) => !workerIds.has(s.userId) && s.status === "planned" && s.date >= nowDate,
+  );
   const weekLocked = days.some((d) => locked.has(monthOf(d)));
 
   return (
@@ -79,6 +85,24 @@ export default async function PlanningPage({
       </div>
 
       <Flash error={sp.error} ok={sp.ok} />
+      {hiddenShifts.length > 0 && (
+        <div className="notice-warn grid gap-1">
+          <p>
+            <strong>Inaktiva personer har kommande pass den här veckan.</strong> De syns inte i schemat men räknas i
+            löneunderlaget. Ta bort eller flytta passen.
+          </p>
+          <ul className="flex flex-wrap gap-x-4 gap-y-1">
+            {hiddenShifts.map((s) => (
+              <li key={s.id}>
+                <Link href={`/planning/shifts/${s.id}`}>
+                  {s.userName}, {weekdayShort(s.date)} {dayMonthShort(s.date)} {shortTime(s.startTime)}–
+                  {shortTime(s.endTime)}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       {weekLocked && (
         <p className="notice-error">Veckan ligger delvis i en godkänd månad. De dagarna är låsta.</p>
       )}

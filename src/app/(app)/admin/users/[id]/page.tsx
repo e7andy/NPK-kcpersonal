@@ -4,6 +4,8 @@ import { eq } from "drizzle-orm";
 import { Flash } from "@/components/flash";
 import { db } from "@/db";
 import { user } from "@/db/schema";
+import { today } from "@/lib/dates";
+import { getUpcomingShiftsOfInactive } from "@/lib/schedule";
 import { requireRole } from "@/lib/session";
 import { updateUser } from "../../actions";
 import { UserFields } from "../user-fields";
@@ -20,6 +22,9 @@ export default async function EditUserPage({
   const sp = await searchParams;
   const [row] = await db.select().from(user).where(eq(user.id, id));
   if (!row) notFound();
+  const upcoming = row.active
+    ? undefined
+    : (await getUpcomingShiftsOfInactive(today())).find((r) => r.userId === row.id);
 
   return (
     <div className="mx-auto grid max-w-2xl gap-5">
@@ -28,6 +33,13 @@ export default async function EditUserPage({
       </Link>
       <h1>{row.name}</h1>
       <Flash error={sp.error} />
+      {upcoming && (
+        <p className="notice-warn">
+          {row.name} är inaktiv men har {upcoming.count} kommande pass från {upcoming.first}. Inaktiva syns inte i
+          schemat, men passen räknas i löneunderlaget. Be planeraren ta bort eller flytta dem, eller aktivera personen
+          igen.
+        </p>
+      )}
       <form action={updateUser} className="panel grid gap-4 p-5 sm:grid-cols-2">
         <input type="hidden" name="id" value={row.id} />
         <UserFields user={row} />

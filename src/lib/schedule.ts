@@ -86,6 +86,31 @@ export async function getActiveTemplates() {
     .orderBy(asc(shiftTemplates.sortOrder), asc(shiftTemplates.startTime));
 }
 
+/**
+ * Number of planned shifts from `from` onwards per inactive person. Inactive
+ * people are hidden from the schedule, so these shifts are easy to miss.
+ */
+export async function getUpcomingShiftsOfInactive(
+  from: string,
+  to?: string,
+): Promise<{ userId: string; name: string; count: number; first: string }[]> {
+  const conditions = [eq(user.active, false), gte(shifts.date, from), eq(shifts.status, "planned")];
+  if (to) conditions.push(lte(shifts.date, to));
+  const rows = await db
+    .select({ userId: user.id, name: user.name, date: shifts.date })
+    .from(shifts)
+    .innerJoin(user, eq(user.id, shifts.userId))
+    .where(and(...conditions))
+    .orderBy(asc(shifts.date));
+  const byUser = new Map<string, { userId: string; name: string; count: number; first: string }>();
+  for (const r of rows) {
+    const entry = byUser.get(r.userId) ?? { userId: r.userId, name: r.name, count: 0, first: r.date };
+    entry.count++;
+    byUser.set(r.userId, entry);
+  }
+  return [...byUser.values()].sort((a, b) => a.name.localeCompare(b.name, "sv"));
+}
+
 /** Active users with the worker role, sorted by name. */
 export async function getWorkers() {
   return db
