@@ -10,16 +10,31 @@ import { roleLabel, UserFields } from "./user-fields";
 export default async function UsersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; ok?: string }>;
+  searchParams: Promise<{ error?: string; ok?: string; show?: string }>;
 }) {
   await requireRole("admin");
   const sp = await searchParams;
-  const users = await db.select().from(user).orderBy(asc(user.name));
+  const showInactive = sp.show === "inactive";
+  const all = await db.select().from(user).orderBy(asc(user.name));
+  const inactiveCount = all.filter((u) => !u.active).length;
+  const users = all.filter((u) => u.active !== showInactive);
 
   return (
     <div className="mx-auto grid max-w-4xl gap-6">
-      <h1>Personal</h1>
+      <div className="flex flex-wrap items-baseline gap-3">
+        <h1 className="mr-auto">{showInactive ? "Inaktiv personal" : "Personal"}</h1>
+        {showInactive ? (
+          <Link href="/admin/users">Visa aktiva</Link>
+        ) : (
+          inactiveCount > 0 && <Link href="/admin/users?show=inactive">Visa inaktiva ({inactiveCount})</Link>
+        )}
+      </div>
       <Flash error={sp.error} ok={sp.ok} />
+      {showInactive && (
+        <p className="text-ink-soft">
+          Inaktiva kan inte logga in och visas inte i schemat. Öppna en person för att aktivera eller radera.
+        </p>
+      )}
 
       <div className="panel overflow-x-auto">
         <table className="w-full min-w-[40rem] text-sm">
@@ -32,11 +47,17 @@ export default async function UsersPage({
             </tr>
           </thead>
           <tbody>
+            {users.length === 0 && (
+              <tr>
+                <td colSpan={4} className="px-4 py-3 text-ink-soft">
+                  {showInactive ? "Ingen inaktiv personal." : "Ingen aktiv personal. Lägg till nedan."}
+                </td>
+              </tr>
+            )}
             {users.map((u) => (
-              <tr key={u.id} className={`border-b border-line/60 ${u.active ? "" : "text-ink-soft"}`}>
+              <tr key={u.id} className="border-b border-line/60">
                 <td className="px-4 py-2 font-bold">
                   <Link href={`/admin/users/${u.id}`}>{u.name}</Link>
-                  {!u.active && <span className="ml-2 font-normal">(inaktiv)</span>}
                 </td>
                 <td className="px-4 py-2">{u.email}</td>
                 <td className="px-4 py-2">{u.roles.map(roleLabel).join(", ")}</td>
@@ -47,6 +68,7 @@ export default async function UsersPage({
         </table>
       </div>
 
+      {!showInactive && (
       <form action={createUser} className="panel grid gap-4 p-5 sm:grid-cols-2">
         <h2 className="sm:col-span-2">Lägg till person</h2>
         <UserFields />
@@ -58,6 +80,7 @@ export default async function UsersPage({
           <button type="submit" className="btn">Lägg till</button>
         </div>
       </form>
+      )}
     </div>
   );
 }

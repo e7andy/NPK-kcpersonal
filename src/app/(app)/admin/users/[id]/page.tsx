@@ -23,7 +23,9 @@ export default async function EditUserPage({
 
   return (
     <div className="mx-auto grid max-w-2xl gap-5">
-      <Link href="/admin/users" className="text-sm">Tillbaka till personal</Link>
+      <Link href={row.active ? "/admin/users" : "/admin/users?show=inactive"} className="text-sm">
+        Tillbaka till {row.active ? "personal" : "inaktiv personal"}
+      </Link>
       <h1>{row.name}</h1>
       <Flash error={sp.error} />
       <form action={updateUser} className="panel grid gap-4 p-5 sm:grid-cols-2">
@@ -42,6 +44,19 @@ export default async function EditUserPage({
           <button type="submit" className="btn">Spara ändringar</button>
         </div>
       </form>
+
+      <section className="grid gap-2 border-t border-line pt-5">
+        <h2>Radera person</h2>
+        <p className="text-sm text-ink-soft">
+          Tar bort personen och alla pass permanent, även i godkända månader. Ska personen kunna komma tillbaka räcker
+          det att inaktivera hen.
+        </p>
+        <div>
+          <Link href={`/admin/users/${row.id}/delete`} className="btn btn-quiet text-lingon">
+            Radera {row.name}
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }

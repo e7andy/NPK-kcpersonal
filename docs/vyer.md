@@ -61,6 +61,8 @@ Sommarjobbare kan inte ändra pass. Ändringar görs av planeraren.
 ## Admin
 
 - Användare: namn, e-post, telefon, roller, anställningsnummer i Fortnox, aktiv/inaktiv.
+  - Listan visar bara aktiva personer. *Visa inaktiva* tar fram de inaktiva, som kan aktiveras igen när de kommer tillbaka.
+  - *Radera* tar bort personen permanent via en bekräftelsesida där personens namn måste skrivas in. Sidan visar hur många pass som försvinner och varnar om några ligger i godkända månader. Admin kan inte radera sig själv.
 - Standardpass: namn, start, slut, standardlunch, sortering, aktiv/inaktiv.
 - Helgdagar: datum och namn.
 

@@ -31,6 +31,8 @@
 | 2026-10-28 | Exportformatet (CSV och Excel) är godkänt. |
 | 2026-10-28 | Förtroendetid är en egen passtyp för tid helt utanför normal arbetstid, till exempel arbetsledning och offboarding. Den ingår inte i normaltiden, ger inga helgtimmar och redovisas i en egen kolumn. Ett pass med förtroendetid som markeras sjuk ger ingen tid. |
 | 2026-10-28 | Inga notiser till sommarjobbarna i första versionen. |
+| 2026-10-29 | Personallistan visar bara aktiva personer. Inaktiva visas på en egen lista och kan aktiveras igen. |
+| 2026-10-29 | Radera tar bort personen och alla pass, även i godkända månader, så att gamla löneunderlag ändras. Ändringshistorik med personens uppgifter och pass tas också bort. Kvar finns bara en rad om att en radering gjorts, utan personuppgifter. Där personen står som den som skapat, ändrat eller godkänt något töms fältet. Ersättarpass för andra finns kvar men förlorar kopplingen. |
 
 ## Öppna frågor
 

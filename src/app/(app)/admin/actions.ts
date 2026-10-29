@@ -1,12 +1,24 @@
 "use server";
 
 import { randomUUID } from "node:crypto";
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq, inArray, like, ne } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { db } from "@/db";
-import { holidays, ROLES, session, shiftTemplates, user, type Role } from "@/db/schema";
+import {
+  account,
+  auditLog,
+  holidays,
+  monthApprovals,
+  ROLES,
+  session,
+  shifts,
+  shiftTemplates,
+  user,
+  verification,
+  type Role,
+} from "@/db/schema";
 import { writeAudit } from "@/lib/audit";
 import { isDateString } from "@/lib/dates";
 import { defaultHolidays } from "@/lib/holidays";
@@ -94,7 +106,68 @@ export async function updateUser(formData: FormData) {
     });
   });
   revalidatePath("/admin/users");
-  back("/admin/users", "ok", "Ändringarna är sparade.");
+  back(active ? "/admin/users" : "/admin/users?show=inactive", "ok", "Ändringarna är sparade.");
+}
+
+/**
+ * Permanently deletes a person and everything tied to them: all their shifts
+ * (also in approved months, which changes old payroll data – see
+ * docs/beslut.md), sign-in sessions and the change history that contains
+ * their details. References from other records are cleared.
+ */
+export async function deleteUser(formData: FormData) {
+  const admin = await requireRole("admin");
+  const id = str(formData, "id");
+  const confirmName = str(formData, "confirmName");
+  const path = `/admin/users/${id}/delete`;
+
+  if (id === admin.id) back(path, "error", "Du kan inte radera dig själv.");
+  const [target] = await db.select().from(user).where(eq(user.id, id));
+  if (!target) redirect("/admin/users");
+  if (confirmName !== target.name) back(path, "error", "Skriv personens namn exakt för att bekräfta.");
+
+  const shiftCount = await db.transaction(async (tx) => {
+    const own = await tx.select({ id: shifts.id }).from(shifts).where(eq(shifts.userId, id));
+    const shiftIds = own.map((s) => s.id);
+
+    // Change history that holds this person's details or shifts.
+    await tx.delete(auditLog).where(and(eq(auditLog.entity, "user"), eq(auditLog.entityId, id)));
+    if (shiftIds.length) {
+      await tx.delete(auditLog).where(and(eq(auditLog.entity, "shift"), inArray(auditLog.entityId, shiftIds)));
+      // Replacement shifts of other people keep existing but lose the link.
+      await tx.update(shifts).set({ replacesShiftId: null }).where(inArray(shifts.replacesShiftId, shiftIds));
+      await tx.delete(shifts).where(inArray(shifts.id, shiftIds));
+    }
+
+    // Clear references to the person as the author of other records.
+    await tx.update(shifts).set({ createdBy: null }).where(eq(shifts.createdBy, id));
+    await tx.update(shifts).set({ updatedBy: null }).where(eq(shifts.updatedBy, id));
+    await tx.update(monthApprovals).set({ approvedBy: null }).where(eq(monthApprovals.approvedBy, id));
+    await tx.update(monthApprovals).set({ unlockedBy: null }).where(eq(monthApprovals.unlockedBy, id));
+    await tx.update(auditLog).set({ userId: null }).where(eq(auditLog.userId, id));
+
+    await tx.delete(session).where(eq(session.userId, id));
+    await tx.delete(account).where(eq(account.userId, id));
+    // Unused sign-in links for the person (they expire within 15 minutes anyway).
+    await tx.delete(verification).where(like(verification.value, `%"email":${JSON.stringify(target.email)}%`));
+    await tx.delete(user).where(eq(user.id, id));
+
+    // Record that a deletion happened, without personal data.
+    await writeAudit(tx, {
+      entity: "user",
+      entityId: id,
+      action: "delete",
+      after: { shiftsDeleted: shiftIds.length },
+      userId: admin.id,
+    });
+    return shiftIds.length;
+  });
+
+  revalidatePath("/admin/users");
+  revalidatePath("/planning");
+  revalidatePath("/reconcile");
+  revalidatePath("/payroll", "layout");
+  back("/admin/users", "ok", `${target.name} är raderad, liksom ${shiftCount} pass.`);
 }
 
 // ---------------------------------------------------------------------------
