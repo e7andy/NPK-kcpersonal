@@ -93,6 +93,7 @@ Föregående månad är godkänd i demodatan så att lönevyn har innehåll.
 | `npm run db:migrate` | Kör migreringar |
 | `npm run db:seed` | Laddar påhittad demodata |
 | `npm run create-admin -- e-post "Namn"` | Skapar en admin, eller ger en befintlig person admin-rollen |
+| `npm run login-link -- e-post` | Skriver ut en engångslänk för inloggning utan att skicka mejl, till exempel om mejlen strular |
 
 ## Driftsättning
 

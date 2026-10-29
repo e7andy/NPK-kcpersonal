@@ -161,6 +161,16 @@ Under bygget kan sidan svara med fel en kort stund.
 | Svarar appen? | `sudo curl -I --unix-socket /run/kcpersonal/kcpersonal.sock http://localhost/login` |
 | Apache | `/var/log/virtualmin/kcpersonal.npk.nu_error_log` |
 
+### Om inloggningsmejlen inte kommer fram
+
+Kontrollera Postfix med `sudo tail -f /var/log/mail.log` medan du begär en länk. Under tiden kan du skriva ut en engångslänk direkt på servern:
+
+```sh
+sudo -u npk.nu -H bash -c 'cd ~/domains/kcpersonal.npk.nu/app && npm run -s login-link -- du@example.se'
+```
+
+Länken fungerar som den i mejlet: den gäller i 15 minuter och kan bara användas en gång. Den fungerar bara för aktiva personer som finns i tjänsten. Den som kan köra kommandot kan logga in som vem som helst, men det kan den som har tillgång till servern ändå.
+
 Svarar Apache med 503 men appen svarar på socketen, kontrollera att `/run/kcpersonal` har gruppen `www-data` (`ls -ld /run/kcpersonal`).
 
 ## Teknisk not: egen startfil

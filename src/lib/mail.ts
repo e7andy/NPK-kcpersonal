@@ -1,10 +1,27 @@
 import nodemailer from "nodemailer";
 
+type LinkCapture = (to: string, url: string) => void;
+
+let capture: LinkCapture | null = null;
+
+/**
+ * Makes sendSignInLink hand links to `fn` instead of sending them. Only used
+ * by the command-line tool scripts/login-link.ts, never by the web app.
+ */
+export function captureSignInLinks(fn: LinkCapture): void {
+  capture = fn;
+}
+
 /**
  * Sends the sign-in link. Without SMTP_HOST (local development) the link is
  * written to the server log instead.
  */
 export async function sendSignInLink(to: string, url: string): Promise<void> {
+  if (capture) {
+    capture(to, url);
+    return;
+  }
+
   if (!process.env.SMTP_HOST) {
     if (process.env.NODE_ENV === "production") {
       throw new Error("SMTP_HOST is not configured");
