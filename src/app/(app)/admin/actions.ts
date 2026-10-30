@@ -92,7 +92,12 @@ export async function updateUser(formData: FormData) {
   if (!before) redirect("/admin/users");
 
   await db.transaction(async (tx) => {
-    await tx.update(user).set({ ...u, active, updatedAt: new Date() }).where(eq(user.id, id));
+    // Deactivation also turns off the calendar link, so a returning person
+    // makes a new one and old copies of the address stay dead.
+    await tx
+      .update(user)
+      .set({ ...u, active, updatedAt: new Date(), ...(active ? {} : { calendarToken: null }) })
+      .where(eq(user.id, id));
     // Changed email, roles or deactivation signs the person out everywhere.
     if (!active || before.email !== u.email || before.roles.join() !== u.roles.join()) {
       await tx.delete(session).where(eq(session.userId, id));
@@ -116,6 +121,23 @@ export async function updateUser(formData: FormData) {
     }
   }
   back(active ? "/admin/users" : "/admin/users?show=inactive", "ok", "Ändringarna är sparade.");
+}
+
+/** Turns off a person's calendar link, e.g. if the address has spread. */
+export async function removeUserCalendarLink(formData: FormData) {
+  const admin = await requireRole("admin");
+  const id = str(formData, "id");
+  await db.transaction(async (tx) => {
+    await tx.update(user).set({ calendarToken: null }).where(eq(user.id, id));
+    await writeAudit(tx, {
+      entity: "user",
+      entityId: id,
+      action: "update",
+      after: { calendarLink: "removed" },
+      userId: admin.id,
+    });
+  });
+  back(`/admin/users/${id}`, "ok", "Kalenderlänken är avstängd.");
 }
 
 /**

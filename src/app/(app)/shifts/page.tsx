@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { CopyField } from "@/components/copy-field";
 import { ShiftTags } from "@/components/shift-tags";
+import { calendarUrl, getCalendarToken, googleCalendarUrl, webcalUrl } from "@/lib/calendar";
 import {
   addDays,
   addMonths,
@@ -18,24 +20,26 @@ import {
 import { getHolidays, getShifts, isWeekendDay, type ShiftRow } from "@/lib/schedule";
 import { requireRole } from "@/lib/session";
 import { addSummaries, EMPTY_SUMMARY, formatDuration, paidMinutes, shortTime, summarizeDay } from "@/lib/time";
+import { createCalendarLink, removeCalendarLink } from "./actions";
 
 export default async function MyShiftsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ view?: string }>;
+  searchParams: Promise<{ view?: string; calendar?: string }>;
 }) {
   const user = await requireRole("worker");
-  const { view } = await searchParams;
+  const { view, calendar } = await searchParams;
   const showPast = view === "past";
   const now = today();
   const thisMonth = monthOf(now);
   const prevMonth = addMonths(thisMonth, -1);
 
-  const [upcoming, past, monthShifts, holidayMap] = await Promise.all([
+  const [upcoming, past, monthShifts, holidayMap, calendarToken] = await Promise.all([
     getShifts({ userId: user.id, from: now, to: addDays(now, 90) }),
     showPast ? getShifts({ userId: user.id, from: addDays(now, -120), to: addDays(now, -1) }) : [],
     getShifts({ userId: user.id, from: firstDayOfMonth(prevMonth), to: lastDayOfMonth(thisMonth) }),
     getHolidays(firstDayOfMonth(prevMonth), lastDayOfMonth(thisMonth)),
+    getCalendarToken(user.id),
   ]);
 
   const nextShift = upcoming.find((s) => s.status === "planned");
@@ -95,7 +99,74 @@ export default async function MyShiftsPage({
         </div>
         <p className="text-sm text-ink-soft">Arbetad tid hittills, med lunch avdragen.</p>
       </section>
+
+      <CalendarSection token={calendarToken} justCreated={calendar === "1"} />
     </div>
+  );
+}
+
+function CalendarSection({ token, justCreated }: { token: string | null; justCreated: boolean }) {
+  return (
+    <section id="calendar" className="panel grid gap-3 p-5" aria-labelledby="calendar-heading">
+      <h2 id="calendar-heading">Passen i din kalender</h2>
+      {!token ? (
+        <>
+          <p className="text-ink-soft">
+            Lägg till dina pass i kalendern i telefonen. Kalendern uppdateras av sig själv när schemat ändras.
+          </p>
+          <form action={createCalendarLink}>
+            <button type="submit" className="btn">Skapa kalenderlänk</button>
+          </form>
+        </>
+      ) : (
+        <>
+          {justCreated && (
+            <p className="notice-ok" role="status">
+              Kalenderlänken är klar. Lägg till den i kalendern nedan.
+            </p>
+          )}
+          <div className="flex flex-wrap gap-2">
+            <a href={webcalUrl(token)} className="btn">Lägg till i kalendern</a>
+            <a href={googleCalendarUrl(token)} className="btn btn-quiet" target="_blank" rel="noreferrer">
+              Google Kalender
+            </a>
+          </div>
+          <details className="text-sm">
+            <summary className="cursor-pointer font-bold">Så gör du</summary>
+            <ul className="mt-2 grid list-disc gap-1 pl-5 text-ink-soft">
+              <li>
+                <b className="text-ink">iPhone:</b> tryck på <i>Lägg till i kalendern</i> och sedan <i>Prenumerera</i>.
+              </li>
+              <li>
+                <b className="text-ink">Android med Google Kalender:</b> tryck på <i>Google Kalender</i> och lägg till
+                kalendern. Det går inte i appen, så öppna länken i webbläsaren. Passen syns sedan i appen.
+              </li>
+              <li>
+                <b className="text-ink">Annan kalender:</b> kopiera adressen nedan och lägg till den som
+                prenumeration eller kalender från webbadress.
+              </li>
+            </ul>
+            <p className="mt-2 text-ink-soft">
+              Sjukmarkerade pass försvinner ur kalendern. Det kan ta upp till några timmar innan ändringar syns,
+              beroende på kalendern.
+            </p>
+          </details>
+          <CopyField value={calendarUrl(token)} label="Kalenderns adress" />
+          <p className="text-sm text-ink-soft">
+            Adressen är personlig och fungerar utan inloggning. Dela den inte. Har den spridits, byt adress så
+            slutar den gamla att fungera.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <form action={createCalendarLink}>
+              <button type="submit" className="btn btn-quiet">Byt adress</button>
+            </form>
+            <form action={removeCalendarLink}>
+              <button type="submit" className="btn btn-quiet text-lingon">Ta bort kalenderlänken</button>
+            </form>
+          </div>
+        </>
+      )}
+    </section>
   );
 }
 

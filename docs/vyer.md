@@ -15,8 +15,12 @@ Efter inloggning landar användaren i vyn för sin huvudroll. Har man flera roll
 **Min tid**
 - Summerad arbetad tid för innevarande och föregående månad.
 
-**Kalenderlänk (senare etapp)**
-- Personlig iCal-länk som kan prenumereras på i telefonens kalender.
+**Passen i din kalender** (längst ned på Mina pass)
+- Sommarjobbaren skapar själv en personlig kalenderlänk (iCal) och prenumererar på den i telefonens kalender. Kalendern uppdateras av sig själv när schemat ändras.
+- *Lägg till i kalendern* öppnar prenumerationen direkt på iPhone (webcal). *Google Kalender* öppnar Google Kalender på webben, eftersom det inte går att prenumerera i Googles app. Adressen kan också kopieras.
+- Kalendern visar bara personens egna pass, från 60 dagar bakåt till ett år framåt, med tid, lunch och arbetstid. Förtroendetid har en egen rubrik. Sjukmarkerade pass visas inte.
+- *Byt adress* gör den gamla adressen ogiltig. *Ta bort kalenderlänken* stänger av den helt.
+- Admin kan stänga av en persons kalenderlänk på personens sida. Inaktivering stänger också av den.
 
 Sommarjobbare kan inte ändra pass. Ändringar görs av planeraren.
 

@@ -35,6 +35,9 @@ export const user = pgTable("user", {
   phone: text("phone"),
   fortnoxEmployeeId: text("fortnox_employee_id"),
   active: boolean("active").notNull().default(true),
+  // Secret for the personal calendar feed (/calendar/<token>.ics). Calendar
+  // apps cannot sign in, so the token is the only credential. Null = no feed.
+  calendarToken: text("calendar_token").unique(),
 });
 
 export const session = pgTable(

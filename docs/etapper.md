@@ -37,7 +37,9 @@ Etapp 1–5 utgör en första version att köra en säsong med.
 - *Lås upp* med kommentar.
 - Enhetstester för beräkningsreglerna.
 
+## Etapp 6: Kalender
+- Personlig kalenderlänk (iCal) per sommarjobbare, se [vyer.md](vyer.md).
+
 ## Senare
 - Mejlnotis när ens pass ändras.
 - Påminnelse dagen före ett pass.
-- iCal-länk per sommarjobbare.

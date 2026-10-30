@@ -36,6 +36,7 @@
 | 2026-10-29 | Säkerhetsgenomgång: begränsning av inloggningsförsök (3 per adress, 10 per IP-adress, 15 minuter), bara nödvändiga Better Auth-adresser öppna, säkerhetsrubriker, skydd mot omdirigering till andra webbplatser, skydd mot formler i CSV-exporten, och IP-adress från Apache som betrodd proxy. Se `docs/arkitektur.md`. |
 | 2026-10-29 | Ett befintligt pass kan rättas, sjukmarkeras eller tas bort även om personen har blivit inaktiv, till exempel vid månadsavstämningen. Nya pass, flyttade pass och ersättare kan bara ges till aktiva sommarjobbare. |
 | 2026-10-29 | Radera tar bort personen och alla pass, även i godkända månader, så att gamla löneunderlag ändras. Ändringshistorik med personens uppgifter och pass tas också bort. Kvar finns bara en rad om att en radering gjorts, utan personuppgifter. Där personen står som den som skapat, ändrat eller godkänt något töms fältet. Ersättarpass för andra finns kvar men förlorar kopplingen. |
+| 2026-10-30 | Varje sommarjobbare kan skapa en personlig kalenderlänk (iCal) med sina egna pass. Länken fungerar utan inloggning och skyddas av en slumpad nyckel som kan bytas. Sjukmarkerade pass visas inte. Tider skrivs i UTC så att alla kalendrar visar rätt tid. Inaktivering stänger av länken, och den som kommer tillbaka skapar en ny. |
 
 ## Öppna frågor
 

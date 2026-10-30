@@ -12,7 +12,7 @@
 | Typsnitt | Atkinson Hyperlegible (text) och Bricolage Grotesque (rubriker, tider), självhostade via Fontsource |
 | Mobil | PWA-manifest och ikon så att sidan kan läggas på hemskärmen |
 | Export | CSV (semikolon, decimalkomma) och Excel via `exceljs` |
-| Tester | Vitest för beräkningsregler, datum och export |
+| Tester | Vitest för beräkningsregler, datum, export och kalenderflöde |
 | Drift | Systemd-tjänst bakom Apache på egen VPS (Virtualmin), se [drift.md](drift.md) |
 
 All kod, alla identifierare och kommentarer är på engelska. Gränssnittet och dokumentationen är på svenska.
@@ -33,7 +33,7 @@ Kontrolleras på serversidan i varje sida, server action och route med `requireR
 
 | Funktion | Sommarjobbare | Planerare | Lön | Admin |
 |---|---|---|---|---|
-| Se egna pass | ✓ | | | |
+| Se egna pass, kalenderlänk | ✓ | | | |
 | Se vem som jobbar en dag | ✓ | ✓ | ✓ | ✓ |
 | Skapa och ändra pass | | ✓ | | |
 | Godkänna månad | | ✓ | | |
@@ -53,6 +53,7 @@ Utöver inloggningen och behörighetskontrollerna ovan:
 - **Säkerhetsrubriker** (`next.config.ts`): sidorna får inte bäddas in på andra webbplatser, HSTS är påslaget och `X-Powered-By` är borttagen.
 - **Omdirigeringar** efter formulär tillåter bara sökvägar inom tjänsten (`src/lib/redirect.ts`).
 - **CSV-exporten** sätter en apostrof före fält som börjar med `=`, `+`, `-` eller `@`, så att Excel inte kör dem som formler.
+- **Kalenderlänken** (`/calendar/<nyckel>.ics`) är öppen utan inloggning, eftersom kalenderappar inte kan logga in. Nyckeln är 256 slumpade bitar och är det enda som skyddar flödet, ungefär som en hemlig adress i Google Kalender. Flödet innehåller bara personens egna pass, inga namn på kollegor och inga anteckningar. Det svarar 404 för okända nycklar, inaktiva personer och personer utan rollen sommarjobbare. Nyckeln byts vid *Byt adress* och tas bort vid inaktivering eller när admin stänger av den. Nyckeln syns i Apaches åtkomstlogg, som bara admin på servern kan läsa.
 - **Formulär** skyddas mot förfalskning av Next.js kontroll av `Origin`. Det kräver `ProxyPreserveHost On` i Apache.
 
 ## Sidor
@@ -60,7 +61,8 @@ Utöver inloggningen och behörighetskontrollerna ovan:
 | Sökväg | Roll | Innehåll |
 |---|---|---|
 | `/login` | alla | Begär inloggningslänk |
-| `/shifts` | sommarjobbare | Nästa pass, kommande och tidigare pass, min tid |
+| `/shifts` | sommarjobbare | Nästa pass, kommande och tidigare pass, min tid, kalenderlänk |
+| `/calendar/[nyckel].ics` | ingen inloggning | Personligt kalenderflöde (iCal) |
 | `/day/[date]` | alla | Vem som jobbar en viss dag |
 | `/planning` | planerare | Veckorutnät, snabbval av standardpass, kopiera vecka |
 | `/planning/shifts/new`, `/planning/shifts/[id]` | planerare | Skapa och ändra pass, sjukdom, ersättare, historik |
@@ -76,6 +78,7 @@ src/
   app/
     login/                 inloggning och utloggning
     api/auth/[...all]/     Better Auth
+    calendar/[file]/       kalenderflöde, utan inloggning
     (app)/                 inloggade sidor, gemensam meny
       shifts/  day/  planning/  reconcile/  payroll/  admin/
   components/              delade komponenter
@@ -90,6 +93,8 @@ src/
     holidays.ts            svenska röda dagar – testad
     schedule.ts            databasfrågor för pass, låsning och löneunderlag
     payroll-export.ts      CSV och Excel – testad
+    ical.ts                kalenderflöde (iCal) – testad
+    calendar.ts            kalenderlänkar och flöde per person
     audit.ts               ändringslogg
     mail.ts                utskick av inloggningslänk
 server.mjs                 produktionsserver (unix-socket), ersätter `next start`

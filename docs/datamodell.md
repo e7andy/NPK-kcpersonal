@@ -19,6 +19,7 @@ Tabellen delas med Better Auth, som också använder `session`, `account` och `v
 | roles | text[] | `worker`, `planner`, `payroll`, `admin` |
 | fortnox_employee_id | text, null | Anställningsnummer i Fortnox |
 | active | boolean | Inaktiva kan inte logga in och visas inte i schemat |
+| calendar_token | text, null, unik | Hemlig nyckel i kalenderlänken. Null betyder ingen kalenderlänk |
 | created_at, updated_at | timestamptz | |
 
 Inga känsliga personuppgifter lagras.

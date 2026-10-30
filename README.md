@@ -4,7 +4,7 @@ Internt verktyg för kanotcentralen (kc) för att planera sommarjobbarnas arbets
 
 ## Vad tjänsten gör
 
-- **Sommarjobbare** ser sina pass i mobilen, och vem som jobbar samma dag.
+- **Sommarjobbare** ser sina pass i mobilen och vem som jobbar samma dag, och kan prenumerera på sina pass i telefonens kalender.
 - **Planerare** lägger schemat med standardpass eller justerade tider, hanterar sjukdom med ersättare, rättar avvikelser i efterhand och godkänner månaden.
 - **Lönekörare** ser godkända månader med arbetad tid per person och dag, med lunch avdragen och helgtimmar och förtroendetid uppdelade, och exporterar underlag som förs in manuellt i Fortnox.
 - **Admin** hanterar personal, standardpass och helgdagar.

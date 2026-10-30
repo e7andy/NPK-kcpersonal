@@ -7,7 +7,7 @@ import { user } from "@/db/schema";
 import { today } from "@/lib/dates";
 import { getUpcomingShiftsOfInactive } from "@/lib/schedule";
 import { requireRole } from "@/lib/session";
-import { updateUser } from "../../actions";
+import { removeUserCalendarLink, updateUser } from "../../actions";
 import { UserFields } from "../user-fields";
 
 export default async function EditUserPage({
@@ -15,7 +15,7 @@ export default async function EditUserPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; ok?: string }>;
 }) {
   await requireRole("admin");
   const { id } = await params;
@@ -32,7 +32,7 @@ export default async function EditUserPage({
         Tillbaka till {row.active ? "personal" : "inaktiv personal"}
       </Link>
       <h1>{row.name}</h1>
-      <Flash error={sp.error} />
+      <Flash error={sp.error} ok={sp.ok} />
       {upcoming && (
         <p className="notice-warn">
           {row.name} är inaktiv men har {upcoming.count} kommande pass från {upcoming.first}. Inaktiva syns inte i
@@ -56,6 +56,28 @@ export default async function EditUserPage({
           <button type="submit" className="btn">Spara ändringar</button>
         </div>
       </form>
+
+      {row.roles.includes("worker") && (
+        <section className="grid gap-2 border-t border-line pt-5">
+          <h2>Kalenderlänk</h2>
+          {row.calendarToken ? (
+            <>
+              <p className="text-sm text-ink-soft">
+                {row.name} har en kalenderlänk. Stäng av den om adressen har spridits. Hen kan skapa en ny under
+                Mina pass.
+              </p>
+              <form action={removeUserCalendarLink}>
+                <input type="hidden" name="id" value={row.id} />
+                <button type="submit" className="btn btn-quiet">Stäng av kalenderlänken</button>
+              </form>
+            </>
+          ) : (
+            <p className="text-sm text-ink-soft">
+              {row.name} har ingen kalenderlänk. Sommarjobbare skapar den själva under Mina pass.
+            </p>
+          )}
+        </section>
+      )}
 
       <section className="grid gap-2 border-t border-line pt-5">
         <h2>Radera person</h2>
